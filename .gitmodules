@@ -1,3 +1,6 @@
 [submodule "MySensors"]
 	path = MySensors
 	url = git@github.com:goulou/MySensors.git
+[submodule "Arduino"]
+	path = Arduino
+	url = git@github.com:goulou/Arduino.git
