@@ -4,3 +4,6 @@
 [submodule "Arduino"]
 	path = Arduino
 	url = git@github.com:goulou/Arduino.git
+[submodule "MySensors_cmake"]
+	path = MySensors_cmake
+	url = git@github.com:goulou/MySensors_cmake.git
