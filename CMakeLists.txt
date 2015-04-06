@@ -4,12 +4,15 @@ project("Kitchen1")
 # CMake version
 cmake_minimum_required(VERSION 2.6)
 
-# Options 
+# Options
 # Adjust to the board
+
+#Set this variable to "avr" or "sam"
 
 #Set this variable to "avr" or "sam"
 set(ARDUINO_ARCH "avr" CACHE STRING "Processor Architecture")
 set(MCU "atmega328p" CACHE STRING "Processor Type")
+set(MCU_MACRO "__AVR_ATmega328P__" CACHE STRING "Processor Macro")
 set(CPU_SPEED "16000000" CACHE STRING "Speed of the CPU")
 set(PORT "/dev/ttyUSB0" CACHE STRING "USB Port")
 set(PORT_SPEED "115200" CACHE STRING "Serial Port Speed")
