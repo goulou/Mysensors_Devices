@@ -34,36 +34,42 @@ MyMessage msg(0,V_TEMP);
 #include "printf.h"
 void setup()
 {
-printf_begin();
-  // Startup OneWire
-  sensors.begin();
-  dht.setup(HUMIDITY_SENSOR_DIGITAL_PIN);
+	printf_begin();
 
-  // Startup and initialize MySensors library. Set callback for incoming messages.
-  gw.begin();
-  gw.setPALevel(RF24_PA_MAX);
+	// Startup OneWire
+	sensors.begin();
+	dht.setup(HUMIDITY_SENSOR_DIGITAL_PIN);
 
-  // Send the sketch version information to the gateway and Controller
-  gw.sendSketchInfo("Bathroom1", "1.0");
+	// Startup and initialize MySensors library. Set callback for incoming messages.
+	gw.begin();
+	gw.setPALevel(RF24_PA_MAX);
 
-  // Fetch the number of attached temperature sensors
-  numSensors = sensors.getDeviceCount();
+	// Send the sketch version information to the gateway and Controller
+	gw.sendSketchInfo("Kitchen1", "1.0");
 
-  // Present all sensors to controller
-  int i = 0;
-  for (i=0; i<numSensors && i<MAX_ATTACHED_DS18B20; i++) {
-     gw.present(i, S_TEMP);
-  }
+	// Fetch the number of attached temperature sensors
+	numSensors = sensors.getDeviceCount();
 
-  Serial.print("registered ");
-  Serial.print(i);
-  Serial.println(" onewire temperature device(s)");
+	// Present all sensors to controller
+	int i = 0;
+	for (i=0; i<numSensors && i<MAX_ATTACHED_DS18B20; i++)
+	{
+		gw.present(i, S_TEMP);
+	}
 
-  // Register all sensors to gw (they will be created as child devices)
-  msgHum.setSensor(i);
-  gw.present(i++, S_HUM);
-  msgTemp.setSensor(i);
-  gw.present(i++, S_TEMP);
+	Serial.print("registered ");
+	Serial.print(i);
+	Serial.println(" onewire temperature device(s)");
+
+	// Register all sensors to gw (they will be created as child devices)
+
+	if(isnan(dht.getTemperature()) == false)
+	{
+		msgHum.setSensor(i);
+		gw.present(i++, S_HUM);
+		msgTemp.setSensor(i);
+		gw.present(i++, S_TEMP);
+	}
 }
 
 
