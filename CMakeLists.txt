@@ -34,6 +34,8 @@ file(GLOB SRC_FILES_C   ${CMAKE_SOURCE_DIR}/*.c  )
 
 include(MySensors_cmake/mysensors.cmake)
 
+make_arduino_program(${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME} MySensors_DHT)
 target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature)
 target_link_libraries(${PROJECT_NAME} MySensors_OneWire)
