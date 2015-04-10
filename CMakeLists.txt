@@ -1,24 +1,22 @@
 # Project name
-project("Kitchen1")
+project("Devices")
 
 # CMake version
 cmake_minimum_required(VERSION 2.6)
 
-# Options
+# Default Options
 # Adjust to the board
 
 #Set this variable to "avr" or "sam"
-
-#Set this variable to "avr" or "sam"
-set(ARDUINO_ARCH "avr" CACHE STRING "Processor Architecture")
-set(MCU "atmega328p" CACHE STRING "Processor Type")
-set(MCU_MACRO "__AVR_ATmega328P__" CACHE STRING "Processor Macro")
-set(CPU_SPEED "16000000" CACHE STRING "Speed of the CPU")
-set(PORT "/dev/ttyUSB0" CACHE STRING "USB Port")
-set(PORT_SPEED "115200" CACHE STRING "Serial Port Speed")
-set(PIN_VARIANT "standard" CACHE STRING "Pin Selection Variant. Either standard, mega, leonardo, eightanaloginputs")
-set(PROGRAMMER "stk500v1" CACHE STRING "Programmer Type")
-set(COMPILE_FLAGS "" CACHE STRING "Additional Compiler Flags")
+set(ARDUINO_ARCH "avr")
+set(MCU "atmega328p")
+set(MCU_MACRO "__AVR_ATmega328P__")
+set(CPU_SPEED "16000000")
+set(PORT "/dev/ttyUSB0")
+set(PORT_SPEED "115200")
+set(PIN_VARIANT "standard")
+set(PROGRAMMER "stk500v1")
+set(COMPILE_FLAGS "")
 
 #PATH
 # Configure these according to your MySensors and Arduino installations
@@ -34,9 +32,5 @@ file(GLOB SRC_FILES_C   ${CMAKE_SOURCE_DIR}/*.c  )
 
 include(MySensors_cmake/mysensors.cmake)
 
-make_arduino_program(${PROJECT_NAME})
-
-target_link_libraries(${PROJECT_NAME} MySensors_DHT)
-target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature)
-target_link_libraries(${PROJECT_NAME} MySensors_OneWire)
+add_subdirectory(Devices/)
 
