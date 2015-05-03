@@ -6,10 +6,10 @@ set(DEVICE_NAME ${PROJECT_NAME})
 cmake_minimum_required(VERSION 2.6)
 
 #Set this variable to "avr" or "sam"
-set(MCU "atmega2560" CACHE STRING "Processor Type")
-set(MCU_MACRO "__AVR_ATmega2560__" CACHE STRING "Processor Macro")
-set(CPU_SPEED "16000000" CACHE STRING "Speed of the CPU")
-set(PIN_VARIANT "mega" CACHE STRING "Pin Selection Variant. Either standard, mega, leonardo, eightanaloginputs")
+set(MCU "atmega2560")
+set(MCU_MACRO "__AVR_ATmega2560__")
+set(CPU_SPEED "16000000")
+set(PIN_VARIANT "mega")
 
 # Set own source files
 # Simply list all your C / C++ source (not header!) files here
