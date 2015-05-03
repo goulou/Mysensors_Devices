@@ -1,5 +1,5 @@
 # Project name
-project("EEPROM_Clear")
+project("EEPROM_Clear_8Mhz")
 
 set(DEVICE_NAME ${PROJECT_NAME})
 # CMake version
