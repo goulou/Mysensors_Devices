@@ -25,16 +25,16 @@ boolean receivedConfig = false;
 MyMessage msg(0, V_TEMP);
 
 #ifdef DEBUG
-#define DEBUGln Serial.println
+#define DEBUG_PRINT_ln Serial.println
 #else
-#define DEBUGln(...)
+#define DEBUG_PRINT_ln(...)
 #endif
 
 #include "printf.h"
 void setup()
 {
 	Serial.begin(115200);
-	DEBUGln("launched");
+	DEBUG_PRINT_ln("launched");
 	printf_begin();
 	// Startup OneWire
 //	sensors.begin();
@@ -47,7 +47,7 @@ void setup()
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo("BathRoom1", "1.0");
 
-	DEBUGln("ready");
+	DEBUG_PRINT_ln("ready");
 
 //	// Fetch the number of attached temperature sensors
 //	numSensors = sensors.getDeviceCount();
@@ -66,26 +66,22 @@ void setup()
 	delay(2000);
 	dht.readSensor();
 	// Register all sensors to gw (they will be created as child devices)
-	if (isnan(dht.getTemperature()) == false)
+	while(isnan(dht.getTemperature()))
 	{
-		msgHum.setSensor(128);
-		gw.present(128, S_HUM);
-		msgTemp.setSensor(129);
-		gw.present(129, S_TEMP);
+		DEBUG_PRINT_ln("Temperature is NaN");
+		DEBUG_PRINT_ln(dht.getStatusString());
+		digitalWrite(13, HIGH);
+		delay(200);
+		digitalWrite(13, LOW);
+		gw.sleep(1000);
+		dht.readSensor();
 	}
-	else
-	{
-		while(isnan(dht.getTemperature()))
-		{
-			DEBUGln("Temperature is NaN");
-			DEBUGln(dht.getStatusString());
-			digitalWrite(13, HIGH);
-			delay(200);
-			digitalWrite(13, LOW);
-			gw.sleep(1000);
-			dht.readSensor();
-		}
-	}
+	DEBUG_PRINT_ln("Temperature OK : presenting");
+	msgHum.setSensor(128);
+	gw.present(128, S_HUM);
+	msgTemp.setSensor(129);
+	gw.present(129, S_TEMP);
+
 	delay(1000);
 }
 int failed_count = 0;
@@ -121,8 +117,8 @@ void loop()
 	if(isnan(temperature) || isnan(humidity))
 	{
 		failed_count++;
-		DEBUGln("unable to read");
-		DEBUGln(dht.getStatusString());
+		DEBUG_PRINT_ln("unable to read");
+		DEBUG_PRINT_ln(dht.getStatusString());
 		if(failed_count >=20)
 		{
 			while(true)
@@ -131,7 +127,7 @@ void loop()
 				gw.sleep(500);
 				digitalWrite(13, HIGH);
 				gw.sleep(500);
-				DEBUGln("unable to read");
+				DEBUG_PRINT_ln("unable to read");
 			}
 		}
 
@@ -154,7 +150,7 @@ void loop()
 		}
 		else
 		{
-			DEBUGln("temperature did not change");
+			DEBUG_PRINT_ln("temperature did not change");
 		}
 
 		if (humidity != lastHum)
@@ -166,7 +162,7 @@ void loop()
 		}
 		else
 		{
-			DEBUGln("humidity did not change");
+			DEBUG_PRINT_ln("humidity did not change");
 		}
 
 
