@@ -22,14 +22,14 @@ float lastHum;
 boolean metric = true;
 MyMessage msgHum(CHILD_ID_HUM, V_HUM);
 MyMessage msgTemp(CHILD_ID_TEMP, V_TEMP);
-
+boolean DHT_registered = false;
 
 MySensor gw;
 float lastTemperature[MAX_ATTACHED_DS18B20];
-int numSensors=0;
+int numDallasSensors = 0;
 boolean receivedConfig = false;
 // Initialize temperature message
-MyMessage msg(0,V_TEMP);
+MyMessage msg(0, V_TEMP);
 
 #include "printf.h"
 void setup()
@@ -41,18 +41,18 @@ void setup()
 	dht.setup(HUMIDITY_SENSOR_DIGITAL_PIN);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
-	gw.begin();
+	gw.begin(NULL, AUTO, true);
 	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo("Kitchen1", "1.0");
 
 	// Fetch the number of attached temperature sensors
-	numSensors = sensors.getDeviceCount();
+	numDallasSensors = sensors.getDeviceCount();
 
 	// Present all sensors to controller
 	int i = 0;
-	for (i=0; i<numSensors && i<MAX_ATTACHED_DS18B20; i++)
+	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
 		gw.present(i, S_TEMP);
 	}
@@ -63,64 +63,84 @@ void setup()
 
 	// Register all sensors to gw (they will be created as child devices)
 
-	if(isnan(dht.getTemperature()) == false)
+	if (isnan(dht.getTemperature()) == false)
 	{
-		msgHum.setSensor(i);
-		gw.present(i++, S_HUM);
-		msgTemp.setSensor(i);
-		gw.present(i++, S_TEMP);
+		msgHum.setSensor(128);
+		gw.present(128, S_HUM);
+		msgTemp.setSensor(129);
+		gw.present(129, S_TEMP);
+		DHT_registered = true;
+	}
+	else
+	{
+		DHT_registered = false;
 	}
 }
 
-
 void loop()
 {
-  // Process incoming messages (like config from server)
-  gw.process();
+	// Process incoming messages (like config from server)
+	gw.process();
 
-  // Fetch temperatures from Dallas sensors
-  sensors.requestTemperatures();
+	// Fetch temperatures from Dallas sensors
+	sensors.requestTemperatures();
 
-  // Read temperatures and send them to controller
-  for (int i=0; i<numSensors && i<MAX_ATTACHED_DS18B20; i++) {
+	// Read temperatures and send them to controller
+	for (int i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
+	{
 
-    // Fetch and round temperature to one decimal
-    float temperature = static_cast<float>(static_cast<int>((gw.getConfig().isMetric?sensors.getTempCByIndex(i):sensors.getTempFByIndex(i)) * 10.)) / 10.;
+		// Fetch and round temperature to one decimal
+		float temperature = static_cast<float>(static_cast<int>((
+				gw.getConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
 
-    // Only send data if temperature has changed and no error
-    if (lastTemperature[i] != temperature && temperature != -127.00) {
-    	  Serial.print("sending temperature for device ");
-    	  Serial.println(i);
-      // Send in the new temperature
-      gw.send(msg.setSensor(i).set(temperature,1));
-      lastTemperature[i]=temperature;
-    }
-  }
+		// Only send data if temperature has changed and no error
+		if (lastTemperature[i] != temperature && temperature != -127.00)
+		{
+			Serial.print("sending temperature for device ");
+			Serial.println(i);
+			// Send in the new temperature
+			gw.send(msg.setSensor(i).set(temperature, 1));
+			lastTemperature[i] = temperature;
+		}
+	}
 
-  float temperature = dht.getTemperature();
-  if (isnan(temperature)) {
-        Serial.println("Failed reading temperature from DHT");
-    } else if (temperature != lastTemp) {
-      lastTemp = temperature;
-      if (!metric) {
-        temperature = dht.toFahrenheit(temperature);
-      }
-      gw.send(msgTemp.set(temperature, 1));
-      Serial.print("T: ");
-      Serial.println(temperature);
-    }
-  float humidity = dht.getHumidity();
-    if (isnan(humidity)) {
-        Serial.println("Failed reading humidity from DHT");
-    } else if (humidity != lastHum) {
-        lastHum = humidity;
-        gw.send(msgHum.set(humidity, 1));
-        Serial.print("H: ");
-        Serial.println(humidity);
-    }
+	if (DHT_registered)
+	{
+		float temperature = dht.getTemperature();
+		if (isnan(temperature))
+		{
+			Serial.println("Failed reading temperature from DHT");
+		}
+		else if (temperature != lastTemp)
+		{
+			lastTemp = temperature;
+			if (!metric)
+			{
+				temperature = dht.toFahrenheit(temperature);
+			}
+			gw.send(msgTemp.set(temperature, 1));
+			Serial.print("T: ");
+			Serial.println(temperature);
+		}
+		float humidity = dht.getHumidity();
+		if (isnan(humidity))
+		{
+			Serial.println("Failed reading humidity from DHT");
+		}
+		else if (humidity != lastHum)
+		{
+			lastHum = humidity;
+			gw.send(msgHum.set(humidity, 1));
+			Serial.print("H: ");
+			Serial.println(humidity);
+		}
+	}
 
-  gw.sleep(SLEEP_TIME);
+	//Repeater mode needs not sleeping : process messages instead.
+	unsigned long start_millis = millis();
+	while( ((unsigned long)(millis() - start_millis)) < SLEEP_TIME)
+	{
+		gw.process();
+	}
 }
-
-
 

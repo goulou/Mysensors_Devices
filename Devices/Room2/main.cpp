@@ -13,7 +13,7 @@ DallasTemperature sensors(&oneWire);
 
 MySensor gw;
 float lastTemperature[MAX_ATTACHED_DS18B20];
-int numSensors = 0;
+int numDallasSensors = 0;
 boolean receivedConfig = false;
 // Initialize temperature message
 MyMessage msg(0, V_TEMP);
@@ -37,11 +37,11 @@ void setup()
 	Serial.println("ready");
 
 	// Fetch the number of attached temperature sensors
-	numSensors = sensors.getDeviceCount();
+	numDallasSensors = sensors.getDeviceCount();
 
 	// Present all sensors to controller
 	int i = 0;
-	for (i = 0; i < numSensors && i < MAX_ATTACHED_DS18B20; i++)
+	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
 		gw.present(i, S_TEMP);
 	}
@@ -60,7 +60,7 @@ void loop()
 	sensors.requestTemperatures();
 
 	// Read temperatures and send them to controller
-	for (int i = 0; i < numSensors && i < MAX_ATTACHED_DS18B20; i++)
+	for (int i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
 
 		// Fetch and round temperature to one decimal
