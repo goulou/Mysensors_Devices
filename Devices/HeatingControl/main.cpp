@@ -5,6 +5,8 @@
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 
+#include <printf.hpp>
+
 #define RELAY_1_ID   16  // MySensors node ID of relay 1
 #define RELAY_1_PIN  22  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
 #define NUMBER_OF_RELAYS 16 // Total number of attached relays
@@ -20,7 +22,6 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 const char Str_BuiltAt[] PROGMEM = "built at:";
 const char Str_Time[] PROGMEM = __TIME__;
 
-#include "printf.h"
 
 void incomingMessage(const MyMessage &message);
 

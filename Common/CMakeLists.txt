@@ -18,3 +18,6 @@ target_include_directories(
 	)
 target_link_libraries(${PROJECT_NAME} Arduino_${DEVICE_NAME})
 
+target_link_libraries(${PROJECT_NAME} MySensors_DHT_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} MySensors_OneWire_${DEVICE_NAME})

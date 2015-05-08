@@ -25,6 +25,7 @@
 #include <MySensor.h>
 #include <MyGateway.h>
 #include <stdarg.h>
+#include <printf.hpp>
 
 #define INCLUSION_MODE_TIME 1 // Number of minutes inclusion mode is enabled
 #define INCLUSION_MODE_PIN 3 // Digital pin used for inclusion mode button
@@ -37,7 +38,6 @@ int inputPos = 0;
 boolean commandComplete = false;  // whether the string is complete
 
 
-#include "printf.h"
 void setup()
 {
 printf_begin();

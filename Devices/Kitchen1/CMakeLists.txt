@@ -17,7 +17,5 @@ file(GLOB SRC_FILES_C   ${CMAKE_CURRENT_SOURCE_DIR}/*.c  )
 
 make_arduino_program(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} MySensors_DHT_${DEVICE_NAME})
-target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature_${DEVICE_NAME})
-target_link_libraries(${PROJECT_NAME} MySensors_OneWire_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Common_${DEVICE_NAME})
 

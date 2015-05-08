@@ -18,16 +18,17 @@
 
 #include <HardwareSerial.h>
 
-int serial_putc( char c, FILE * )
-{
-  Serial.write( c );
+int serial_putc( char c, FILE * );
 
-  return c;
-}
+void printf_begin(void);
 
-void printf_begin(void)
-{
-  fdevopen( &serial_putc, 0 );
-}
+#ifdef DEBUG
+#define DEBUG_PRINT_ln Serial.println
+#define DEBUG_PRINT    Serial.print
+#else
+#define DEBUG_PRINT_ln(...)
+#define DEBUG_PRINT(...)
+#endif
+
 
 #endif // __PRINTF_H__

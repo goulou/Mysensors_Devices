@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include "printf.h"
+#include <printf.hpp>
 void setup()
 {
 	Serial.begin(115200);
