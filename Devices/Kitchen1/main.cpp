@@ -32,6 +32,14 @@ boolean receivedConfig = false;
 MyMessage msg(0, V_TEMP);
 
 #include "printf.h"
+#ifdef DEBUG
+#define DEBUG_PRINT_ln 	Serial.println
+#define DEBUG_PRINT 	Serial.print
+#else
+#define DEBUG_PRINT_ln(...)
+#endif
+
+
 void setup()
 {
 	printf_begin();
@@ -63,8 +71,26 @@ void setup()
 
 	// Register all sensors to gw (they will be created as child devices)
 
+	delay(2000);
+	dht.readSensor();
+	// Register all sensors to gw (they will be created as child devices)
+	int failed_count = 0;
+	while(isnan(dht.getTemperature()) && failed_count < 10)
+	{
+		DEBUG_PRINT_ln("Temperature is NaN");
+		DEBUG_PRINT_ln(dht.getStatusString());
+		digitalWrite(13, HIGH);
+		delay(200);
+		digitalWrite(13, LOW);
+		gw.sleep(1000);
+		dht.readSensor();
+		failed_count ++;
+	}
+
+
 	if (isnan(dht.getTemperature()) == false)
 	{
+		DEBUG_PRINT_ln("DHT OK : presenting");
 		msgHum.setSensor(128);
 		gw.present(128, S_HUM);
 		msgTemp.setSensor(129);
@@ -73,6 +99,7 @@ void setup()
 	}
 	else
 	{
+		DEBUG_PRINT_ln("DHT NOK : not presenting");
 		DHT_registered = false;
 	}
 }
