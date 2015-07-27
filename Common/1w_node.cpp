@@ -20,7 +20,7 @@
 /**
  * One Wire
  */
-#define ONE_WIRE_BUS 3 // Pin where dallase sensor is connected
+#define ONE_WIRE_BUS PD5 // Pin where dallase sensor is connected
 
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -28,7 +28,7 @@ DallasTemperature sensors(&oneWire);
 float lastTemperature[MAX_ATTACHED_DS18B20];
 int numDallasSensors = 0;
 // Initialize temperature message
-MyMessage msg(0, V_TEMP);
+MyMessage RainMsg(0, V_TEMP);
 
 void onewire_node_setup(MySensor& gw)
 {
@@ -70,7 +70,7 @@ void onewire_node_loop(MySensor& gw)
 			Serial.print("sending temperature for device ");
 			Serial.println(i);
 			// Send in the new temperature
-			gw.send(msg.setSensor(i).set(temperature, 1));
+			gw.send(RainMsg.setSensor(i).set(temperature, 1));
 			lastTemperature[i] = temperature;
 		}
 	}
