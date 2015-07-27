@@ -11,6 +11,7 @@
 
 
 #include "printf.hpp"
+#include "battery_monitored_node.hpp"
 
 
 #ifdef INTERNAL1V1
@@ -32,6 +33,8 @@ void battery_monitored_node_setup(MySensor& gw, uint8_t pin)
 {
 	battery_pin = pin;
 	analogReference(REFERENCE);
+
+	battery_monitored_node_loop(gw);
 }
 
 void battery_monitored_node_loop(MySensor& gw)
