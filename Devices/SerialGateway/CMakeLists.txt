@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 2.6)
 set(MCU "atmega328p")
 set(MCU_MACRO "__AVR_ATmega328P__")
 set(CPU_SPEED "16000000")
+set(PROGRAM_DEFS "-DBAUD_RATE=115200")
 
 # Set own source files
 # Simply list all your C / C++ source (not header!) files here
