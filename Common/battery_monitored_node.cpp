@@ -38,7 +38,6 @@ void battery_monitored_node_loop(MySensor& gw)
 {
 	// get the battery Voltage
 	int sensorValue = analogRead(battery_pin);
-	DEBUG_PRINT_ln(sensorValue);
 
 	// 1M, 470K divider across battery and using internal ADC ref of 1.1V
 	// Sense point is bypassed with 0.1 uF cap to reduce noise at that point
