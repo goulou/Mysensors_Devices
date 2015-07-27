@@ -11,22 +11,22 @@
 
 #include "printf.hpp"
 
+#include "dht_node.hpp"
+
 /**
  * DHT
  */
-#define CHILD_ID_HUM 0
-#define CHILD_ID_TEMP 1
+#define CHILD_ID_HUM 128
+#define CHILD_ID_TEMP 129
 
 DHT dht;
 float lastTemp;
 float lastHum;
 boolean metric = true;
-MyMessage msgHum(CHILD_ID_HUM, V_HUM);
-MyMessage msgTemp(CHILD_ID_TEMP, V_TEMP);
 boolean DHT_registered = false;
 int failed_count = 0;
 
-void setup_dht(MySensor& gw, uint8_t pin, int max_try)
+void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 {
 	dht.setup(pin);
 
@@ -35,26 +35,37 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try)
 	dht.readSensor();
 	// Register all sensors to gw (they will be created as child devices)
 	failed_count = 0;
-	while(isnan(dht.getTemperature()) && (max_try==0 || failed_count < 10))
+	while(isnan(dht.getTemperature()) && (max_try==0 || failed_count < max_try))
 	{
 		DEBUG_PRINT_ln("Temperature is NaN");
 		DEBUG_PRINT_ln(dht.getStatusString());
 		digitalWrite(13, HIGH);
 		delay(200);
 		digitalWrite(13, LOW);
-		gw.sleep(1000);
+		delay(1000);
+		DEBUG_PRINT_ln("reading");
 		dht.readSensor();
 		failed_count ++;
 	}
 
+	DEBUG_PRINT("temperature OK : ");
+	DEBUG_PRINT_ln(dht.getTemperature());
+	DEBUG_PRINT("humidity       : ");
+	DEBUG_PRINT_ln(dht.getHumidity());
 
+	if(present)
+	{
+		present_dht(gw);
+	}
+}
+
+void present_dht(MySensor& gw)
+{
 	if (isnan(dht.getTemperature()) == false)
 	{
 		DEBUG_PRINT_ln("DHT OK : presenting");
-		msgHum.setSensor(128);
-		gw.present(128, S_HUM);
-		msgTemp.setSensor(129);
-		gw.present(129, S_TEMP);
+		gw.present(CHILD_ID_HUM, S_HUM);
+		gw.present(CHILD_ID_TEMP, S_TEMP);
 		DHT_registered = true;
 		failed_count = 0;
 	}
@@ -64,6 +75,7 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try)
 		DHT_registered = false;
 	}
 
+	loop_dht(gw);
 }
 
 boolean loop_dht(MySensor& gw)
@@ -103,9 +115,10 @@ boolean loop_dht(MySensor& gw)
 				{
 					temperature = dht.toFahrenheit(temperature);
 				}
-				gw.send(msgTemp.set(temperature, 1));
-		//		Serial.print("T: ");
-		//		DEBUGln(temperature);
+				MyMessage msg(CHILD_ID_TEMP, V_TEMP);
+				gw.send(msg.set(temperature, 1));
+				Serial.print("T: ");
+				DEBUG_PRINT_ln(temperature);
 			}
 			else
 			{
@@ -115,9 +128,10 @@ boolean loop_dht(MySensor& gw)
 			if (humidity != lastHum)
 			{
 				lastHum = humidity;
-				gw.send(msgHum.set(humidity, 1));
-		//		Serial.print("H: ");
-		//		DEBUGln(humidity);
+				MyMessage msg(CHILD_ID_HUM, V_HUM);
+				gw.send(msg.set(humidity, 1));
+				Serial.print("H: ");
+				DEBUG_PRINT_ln(humidity);
 			}
 			else
 			{
@@ -128,4 +142,9 @@ boolean loop_dht(MySensor& gw)
 	}
 
 	return true;
+}
+
+float get_last_temp()
+{
+	return lastTemp;
 }
