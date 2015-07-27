@@ -3,9 +3,12 @@
 #include <EEPROM.h>
 
 #include <printf.hpp>
+
+#define LED_PIN 13
+
 void setup()
 {
-	Serial.begin(115200);
+	Serial.begin(9600);
 	printf_begin();
 
 	Serial.println("Clearing EEPROM");
@@ -13,6 +16,7 @@ void setup()
 	{
 		EEPROM.write(i, 0xff);
 	}
+	pinMode(LED_PIN, OUTPUT);
 }
 
 
@@ -21,7 +25,10 @@ void loop()
 	while(true)
 	{
 		Serial.println("EEPROM cleared : waiting in endless loop");
-		delay(2000);
+		digitalWrite(LED_PIN, HIGH);
+		delay(1000);
+		digitalWrite(LED_PIN, LOW);
+		delay(1000);
 	}
 }
 
