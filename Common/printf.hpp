@@ -22,6 +22,9 @@ int serial_putc( char c, FILE * );
 
 void printf_begin(void);
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 #ifdef DEBUG
 #define DEBUG_PRINT_ln Serial.println
 #define DEBUG_PRINT    Serial.print

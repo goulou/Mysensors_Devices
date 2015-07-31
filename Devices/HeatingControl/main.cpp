@@ -52,7 +52,7 @@ void setup()
 
 	gw.begin(incomingMessage, AUTO, true, AUTO, RF24_PA_MAX);
 	// Send the sketch version information to the gateway and Controller
-	gw.sendSketchInfo("Relay", "1.0");
+	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	Serial.println("Ready");
 	lcd.clear();

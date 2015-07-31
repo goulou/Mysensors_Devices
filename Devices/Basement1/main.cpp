@@ -43,7 +43,7 @@ void setup()
 	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
-	gw.sendSketchInfo("Basement1", "1.0");
+	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	setup_dht(gw, HUMIDITY_SENSOR_DIGITAL_PIN, 0);
 	onewire_node_setup(gw);

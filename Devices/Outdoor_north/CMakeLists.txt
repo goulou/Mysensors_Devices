@@ -1,7 +1,7 @@
 # Project name
-project("Outdoor_north")
+get_filename_component(DEVICE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(${DEVICE_NAME})
 
-set(DEVICE_NAME ${PROJECT_NAME})
 # CMake version
 cmake_minimum_required(VERSION 2.6)
 

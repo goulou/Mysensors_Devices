@@ -26,7 +26,7 @@ void setup()
 	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
-	gw.sendSketchInfo("Kitchen1", "1.0");
+	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	onewire_node_setup(gw);
 	// Register all sensors to gw (they will be created as child devices)

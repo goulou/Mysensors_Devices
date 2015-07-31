@@ -36,7 +36,7 @@ void setup()
 
 	// Send the sketch version information to the gateway and Controller
 	Serial.println("sendSketchInfo");
-	gw.sendSketchInfo("RoomUpstair1", "1.0");
+	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	Serial.println("setup1w");
 	// Startup OneWire

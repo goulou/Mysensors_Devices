@@ -83,7 +83,7 @@ void setup()
 
 	// Send the sketch version information to the gateway and Controller
 	DEBUG_PRINT_ln("sendSketchInfo");
-	gw.sendSketchInfo("Outdoor_north", "1.0");
+	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	// Startup DHT
 	present_dht(gw);
