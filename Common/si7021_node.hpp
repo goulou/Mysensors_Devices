@@ -13,6 +13,6 @@
 void setup_si7021(MySensor& gw, int max_try, boolean present=true);
 void present_si7021(MySensor& gw);
 boolean loop_si7021(MySensor& gw);
-float get_last_temp();
+float si7021_get_last_temp();
 
 #endif /* COMMON_SI7021_NODE_HPP_ */

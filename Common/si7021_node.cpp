@@ -20,11 +20,11 @@
 
 SI7021 si7021_sensor;
 
-float lastTemp;
-float lastHum;
-boolean metric = true;
-boolean registered = false;
-int failed_count = 0;
+static float lastTemp;
+static float lastHum;
+static boolean metric = true;
+static boolean registered = false;
+static int failed_count = 0;
 
 void setup_si7021(MySensor& gw, int max_try, boolean present)
 {
@@ -136,7 +136,7 @@ boolean loop_si7021(MySensor& gw)
 	return true;
 }
 
-float get_last_temp()
+float si7021_get_last_temp()
 {
 	return lastTemp;
 }

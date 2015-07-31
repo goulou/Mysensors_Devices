@@ -19,12 +19,12 @@
 #define CHILD_ID_HUM 128
 #define CHILD_ID_TEMP 129
 
-DHT dht;
-float lastTemp;
-float lastHum;
-boolean metric = true;
-boolean DHT_registered = false;
-int failed_count = 0;
+static DHT dht;
+static float lastTemp;
+static float lastHum;
+static boolean metric = true;
+static boolean DHT_registered = false;
+static int failed_count = 0;
 
 void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 {
@@ -144,7 +144,7 @@ boolean loop_dht(MySensor& gw)
 	return true;
 }
 
-float get_last_temp()
+float dht_get_last_temp()
 {
 	return lastTemp;
 }
