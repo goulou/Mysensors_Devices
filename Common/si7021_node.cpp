@@ -28,11 +28,13 @@ static int failed_count = 0;
 
 void setup_si7021(MySensor& gw, int max_try, boolean present)
 {
+	delay(500);
+	DEBUG_PRINT_ln("openning SI7021");
 	si7021_sensor.begin();
 
 	// Register all sensors to gw (they will be created as child devices)
 	failed_count = 0;
-	while(isnan(si7021_sensor.sensorExists()) && (max_try==0 || failed_count < 10))
+	while(si7021_sensor.sensorExists()==false && (max_try==0 || failed_count < 10))
 	{
 		DEBUG_PRINT_ln("SI7021 not available");
 		digitalWrite(13, HIGH);
@@ -44,10 +46,16 @@ void setup_si7021(MySensor& gw, int max_try, boolean present)
 		failed_count ++;
 	}
 
+
 	if(present)
 	{
 		present_si7021(gw);
 	}
+	else if(si7021_sensor.sensorExists())
+	{
+		DEBUG_PRINT_ln("SI7021 available");
+	}
+
 }
 
 void present_si7021(MySensor& gw)
