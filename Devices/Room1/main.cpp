@@ -27,6 +27,7 @@ void setup()
 //	eeprom_reset_check(3);
 
 	Serial.println("begin");
+	setup_si7021(gw, 10, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 20);
@@ -40,7 +41,7 @@ void setup()
 	Serial.println("setup1w");
 	// Startup OneWire
 	onewire_node_setup(gw);
-	setup_si7021(gw, 10);
+	present_si7021(gw);
 	battery_monitored_node_setup(gw, BATTERY_SENSE_PIN);
 }
 
