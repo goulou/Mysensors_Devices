@@ -26,8 +26,8 @@ void printf_begin(void);
 #define str(s) #s
 
 #ifdef DEBUG
-#define DEBUG_PRINT_ln Serial.println
-#define DEBUG_PRINT    Serial.print
+#define DEBUG_PRINT_ln(...) do{Serial.println(__VA_ARGS__);Serial.flush();}while(0)
+#define DEBUG_PRINT(...)    do{Serial.print(__VA_ARGS__);Serial.flush();}while(0)
 #else
 #define DEBUG_PRINT_ln(...)
 #define DEBUG_PRINT(...)
