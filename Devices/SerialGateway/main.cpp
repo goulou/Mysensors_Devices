@@ -21,17 +21,51 @@
  * - ERR (red) - fast blink on error during transmission error or recieve crc error
  */
 
+
+#define NO_PORTB_PINCHANGES
+
+#include <MySigningNone.h>
+#include <MyTransportRFM69.h>
+#include <MyTransportNRF24.h>
+#include <MyHwATMega328.h>
+#include <MySigningAtsha204Soft.h>
+#include <MySigningAtsha204.h>
+
 #include <SPI.h>
+#include <MyParserSerial.h>
 #include <MySensor.h>
-#include <MyGateway.h>
+#include <stdarg.h>
+#include <PinChangeInt.h>
+#include "GatewayUtil.h"
+
+
 #include <stdarg.h>
 #include <printf.hpp>
 
+
 #define INCLUSION_MODE_TIME 1 // Number of minutes inclusion mode is enabled
 #define INCLUSION_MODE_PIN 3 // Digital pin used for inclusion mode button
+// NRFRF24L01 radio driver (set low transmit power by default)
+MyTransportNRF24 transport(RF24_CE_PIN, RF24_CS_PIN, RF24_PA_MAX);
+//MyTransportRFM69 transport;
+
+// Message signing driver (signer needed if MY_SIGNING_FEATURE is turned on in MyConfig.h)
+//MySigningNone signer;
+//MySigningAtsha204Soft signer;
+//MySigningAtsha204 signer;
+
+// Hardware profile
+MyHwATMega328 hw;
+
+// Construct MySensors library (signer needed if MY_SIGNING_FEATURE is turned on in MyConfig.h)
+// To use LEDs blinking, uncomment WITH_LEDS_BLINKING in MyConfig.h
+#ifdef WITH_LEDS_BLINKING
+MySensor gw(transport, hw /*, signer*/, RADIO_RX_LED_PIN, RADIO_TX_LED_PIN, RADIO_ERROR_LED_PIN);
+#else
+MySensor gw(transport, hw /*, signer*/);
+#endif
 
 
-MyGateway gw(DEFAULT_CE_PIN, DEFAULT_CS_PIN, INCLUSION_MODE_TIME, INCLUSION_MODE_PIN,  6, 5, 4);
 
 char inputString[MAX_RECEIVE_LENGTH] = "";    // A string to hold incoming commands from serial/ethernet interface
 int inputPos = 0;
@@ -42,16 +76,15 @@ void setup()
 {
 printf_begin();
   gw.begin();
-  gw.setPALevel(RF24_PA_MAX);
 }
 
 void loop()
 {
-  gw.processRadioMessage();
+  gw.process();
   if (commandComplete) {
     // A command wass issued from serial interface
     // We will now try to send it to the actuator
-    gw.parseAndSend(inputString);
+    parseAndSend(gw, inputString);
     commandComplete = false;
     inputPos = 0;
   }
