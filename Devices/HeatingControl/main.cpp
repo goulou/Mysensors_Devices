@@ -10,8 +10,8 @@
 #define RELAY_1_ID   16  // MySensors node ID of relay 1
 #define RELAY_1_PIN  22  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
 #define NUMBER_OF_RELAYS 16 // Total number of attached relays
-#define RELAY_ON 0  // GPIO value to write to turn on attached relay
-#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
+#define RELAY_ON 1  // GPIO value to write to turn on attached relay
+#define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
 MySensor gw(/*_cepin=*/14, /*_cspin=*/15);
 boolean receivedConfig = false;
