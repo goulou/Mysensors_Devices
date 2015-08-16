@@ -5,7 +5,7 @@
 
 #include <eeprom_reset.hpp>
 #include <1w_node.hpp>
-#include <dht_node.hpp>
+#include <si7021_node.hpp>
 #include <battery_monitored_node.hpp>
 #include <printf.hpp>
 
@@ -48,6 +48,11 @@ void setup()
 	DEBUG_PRINT_ln("begin");
 	Serial.flush();
 	DEBUG_PRINT_ln("launched");
+
+
+	/****************************
+	         init BMP180
+	 ****************************/
 	while (!bmp.begin(BMP085_ULTRALOWPOWER) && i<5)
 	{
 		DEBUG_PRINT_ln("Could not find a valid BMP085 sensor, check wiring!");
@@ -72,27 +77,32 @@ void setup()
 		DEBUG_PRINT_ln(" Pa");
 		DEBUG_PRINT_ln(weather[forecast]);
 	}
+	/****************************
+	       end init BMP180
+	 ****************************/
 
-	DEBUG_PRINT_ln("Setup DHT");
-	setup_dht(gw, 7, 10, false);
+
+	DEBUG_PRINT_ln("Setup si7021");
+	setup_si7021(gw, 10, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 68);
-//	DEBUG_PRINT_ln("setPALevel");
-//	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	DEBUG_PRINT_ln("sendSketchInfo");
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	// Startup DHT
-	present_dht(gw);
+	present_si7021(gw);
 
+	pinMode(RAIN_SENSOR_DIGITAL_PIN, INPUT);
+	gw.present(RAIN_CHILD_ID, S_RAIN);
+
+	/****************************
+           present BMP180
+	 ****************************/
 	if(bmp_present)
 	{
-		gw.present(RAIN_CHILD_ID, S_RAIN);
-		pinMode(RAIN_SENSOR_DIGITAL_PIN, INPUT);
-
 		gw.present(BARO_CHILD_ID, S_BARO);
 	}
 
@@ -105,8 +115,7 @@ void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
-
-	loop_dht(gw);
+	loop_si7021(gw);
 
 	int rainValue = digitalRead(RAIN_SENSOR_DIGITAL_PIN); // 1 = Not triggered, 0 = In soil with water
 	if (rainValue != lastRainValue)
@@ -119,8 +128,6 @@ void loop()
 
 	if(bmp_present)
 	{
-
-
 
 		/**************************************************/
 		/***********    Compute forecast    ***************/
