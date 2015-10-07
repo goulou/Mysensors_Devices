@@ -71,16 +71,30 @@ char inputString[MAX_RECEIVE_LENGTH] = "";    // A string to hold incoming comma
 int inputPos = 0;
 boolean commandComplete = false;  // whether the string is complete
 
+void parseAndSend(char *commandBuffer);
+
+void output(const char *fmt, ... ) {
+   va_list args;
+   va_start (args, fmt );
+   vsnprintf_P(serialBuffer, MAX_SEND_LENGTH, fmt, args);
+   va_end (args);
+   Serial.print(serialBuffer);
+}
+
 
 void setup()
 {
-printf_begin();
-  gw.begin();
+	setupGateway(INCLUSION_MODE_PIN, INCLUSION_MODE_TIME, output);
+  gw.begin(incomingMessage, 0, true, 0);
+
+  // Send startup log message on serial
+  serial(PSTR("0;0;%d;0;%d;Gateway startup complete.\n"),  C_INTERNAL, I_GATEWAY_READY);
 }
 
 void loop()
 {
   gw.process();
+
   if (commandComplete) {
     // A command wass issued from serial interface
     // We will now try to send it to the actuator
@@ -118,5 +132,6 @@ void serialEvent() {
     }
   }
 }
+
 
 
