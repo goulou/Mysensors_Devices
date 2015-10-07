@@ -23,7 +23,7 @@ void setup()
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 0xA2, true, GATEWAY_ADDRESS);
-	gw.setPALevel(RF24_PA_MAX);
+//	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
