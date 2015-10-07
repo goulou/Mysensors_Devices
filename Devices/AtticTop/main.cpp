@@ -11,7 +11,7 @@
 #include <si7021_node.hpp>
 
 MySensor gw;
-unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
+unsigned long SLEEP_TIME = 120000; // Sleep time between reads (in milliseconds)
 
 #define BATTERY_SENSE_PIN  A0
 
