@@ -13,7 +13,10 @@
 #define RELAY_ON 1  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
-MySensor gw(/*_cepin=*/14, /*_cspin=*/15);
+MyTransportNRF24 transport(/*_cepin=*/14, /*_cspin=*/15, RF24_PA_MAX);
+MyHwDriver hw;
+
+MySensor gw(transport, hw);
 boolean receivedConfig = false;
 // Initialize temperature message
 
@@ -50,7 +53,7 @@ void setup()
 //	delay(1000);
 	// Initialize library and add callback for incoming messages
 
-	gw.begin(incomingMessage, AUTO, true, AUTO, RF24_PA_MAX);
+	gw.begin(incomingMessage, AUTO, true, AUTO);
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
