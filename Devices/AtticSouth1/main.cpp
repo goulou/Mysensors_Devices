@@ -11,9 +11,12 @@
 #include <1w_node.hpp>
 #include <printf.hpp>
 
-MySensor gw(/*_cepin=*/14, /*_cspin=*/15);
-boolean receivedConfig = false;
+MyTransportNRF24 transport(/*_cepin=*/14, /*_cspin=*/15, RF24_PA_MAX);
+MyHwDriver hw;
 
+MySensor gw(transport, hw);
+boolean receivedConfig = false;
+// Initialize temperature message
 // Initialize temperature message
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
@@ -60,7 +63,7 @@ void setup()
 	printf_begin();
 
 	//IO PIN 3
-	eeprom_reset_check(PE5);
+	eeprom_reset_check(5);
 
 	for (int i=0; i < NUMBER_OF_RELAYS; i++)
 	{
@@ -76,7 +79,6 @@ void setup()
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(incomingMessage, 69, true);
-	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
