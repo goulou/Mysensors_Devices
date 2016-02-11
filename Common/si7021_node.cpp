@@ -34,7 +34,7 @@ void setup_si7021(MySensor& gw, int max_try, boolean present)
 
 	// Register all sensors to gw (they will be created as child devices)
 	failed_count = 0;
-	while(si7021_sensor.sensorExists()==false && (max_try==0 || failed_count < 10))
+	while(si7021_sensor.sensorExists()==false && (max_try==0 || failed_count < max_try))
 	{
 		DEBUG_PRINT_ln("SI7021 not available");
 		digitalWrite(13, HIGH);
