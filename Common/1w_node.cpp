@@ -20,8 +20,10 @@
 /**
  * One Wire
  */
-#define ONE_WIRE_BUS PD5 // Pin where dallase sensor is connected
-
+#ifndef ONE_WIRE_BUS
+#define ONE_WIRE_BUS 3 // Pin where dallase sensor is connected
+#else
+#endif
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
