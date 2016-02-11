@@ -5,13 +5,16 @@
 #include <OneWire.h>
 #include <DHT.h>
 
+#include <eeprom_reset.hpp>
 #include <printf.hpp>
 #include <dht_node.hpp>
 #include <1w_node.hpp>
 
+#include <si7021_node.hpp>
+
 unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 
-#define HUMIDITY_SENSOR_DIGITAL_PIN 4
+#define HUMIDITY_SENSOR_DIGITAL_PIN 7
 
 MySensor gw;
 // Initialize temperature message
@@ -19,7 +22,15 @@ MySensor gw;
 
 void setup()
 {
+	Serial.begin(BAUD_RATE);
+	Serial.println("launched");
 	printf_begin();
+
+	eeprom_reset_check(3);
+
+	Serial.println("begin");
+	setup_si7021(gw, 5, false);
+	setup_dht(gw, HUMIDITY_SENSOR_DIGITAL_PIN, 5, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 0xA2, true, GATEWAY_ADDRESS);
@@ -29,10 +40,11 @@ void setup()
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 	onewire_node_setup(gw);
+	present_si7021(gw);
+	present_dht(gw);
 	// Register all sensors to gw (they will be created as child devices)
 
 	delay(2000);
-	setup_dht(gw, HUMIDITY_SENSOR_DIGITAL_PIN, 10);
 }
 
 void loop()
@@ -41,6 +53,7 @@ void loop()
 	gw.process();
 	Serial.print(".");
 	onewire_node_loop(gw);
+	loop_si7021(gw);
 
 	unsigned long sleep_time = SLEEP_TIME;
 	if(loop_dht(gw) == false)
