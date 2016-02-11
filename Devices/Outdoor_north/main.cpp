@@ -43,7 +43,7 @@ void setup()
 	DEBUG_PRINT_ln("launched");
 	printf_begin();
 
-//	eeprom_reset_check(3);
+	eeprom_reset_check(PD4);
 
 	DEBUG_PRINT_ln("begin");
 	Serial.flush();
