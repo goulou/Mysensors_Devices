@@ -22,4 +22,5 @@ target_link_libraries(${PROJECT_NAME} Arduino_LiquidCrystal_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} MySensors_DHT_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} MySensors_OneWire_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} MySensors_EmonLib_${DEVICE_NAME})
 
