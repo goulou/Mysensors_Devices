@@ -29,7 +29,8 @@ static int failed_count = 0;
 void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 {
 	dht.setup(pin);
-	DEBUG_PRINT_ln("Waiting for DHT Init");
+	DEBUG_PRINT("Waiting for DHT on pin ");
+	DEBUG_PRINT_ln(pin);
 	delay(500);
 	if(dht.getModel() == dht.DHT11)
 	{//You should wait at least 1000ms if a DHT11 is detected
