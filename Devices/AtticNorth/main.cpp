@@ -88,7 +88,6 @@ void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
-	onewire_node_loop(gw);
 
 	unsigned long sleep_time = SLEEP_TIME;
 	if(loop_si7021(gw) == false)

@@ -3,7 +3,6 @@
 #include <SPI.h>
 
 #include <eeprom_reset.hpp>
-#include <1w_node.hpp>
 #include <dht_node.hpp>
 #include <battery_monitored_node.hpp>
 #include <si7021_node.hpp>
@@ -46,7 +45,6 @@ void loop()
 	// Process incoming messages (like config from server)
 	gw.process();
 
-	onewire_node_loop(gw);
 	loop_si7021(gw);
 	battery_monitored_node_loop(gw);
 

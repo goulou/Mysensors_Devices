@@ -51,7 +51,6 @@ void setup()
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
-	onewire_node_setup(gw);
 
 	present_dht(gw);
 
@@ -64,7 +63,6 @@ void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
-	onewire_node_loop(gw);
 	loop_relays(gw);
 	loop_dht(gw);
 

@@ -38,7 +38,6 @@ void setup()
 
 	Serial.println("setup1w");
 	// Startup OneWire
-	onewire_node_setup(gw);
 	present_si7021(gw);
 	battery_monitored_node_setup(gw, BATTERY_SENSE_PIN);
 }
@@ -48,7 +47,6 @@ void loop()
 	// Process incoming messages (like config from server)
 	gw.process();
 
-	onewire_node_loop(gw);
 	loop_si7021(gw);
 	battery_monitored_node_loop(gw);
 

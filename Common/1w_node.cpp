@@ -13,10 +13,12 @@
 #include <DallasTemperature.h>
 
 
-#include "printf.hpp"
+#include "serial.hpp"
+
+#include "1w_node.hpp"
 
 #define MAX_ATTACHED_DS18B20 16
-
+#define MIN_TEMPERATURE_DELTA 0.2
 /**
  * One Wire
  */
@@ -32,29 +34,42 @@ int numDallasSensors = 0;
 // Initialize temperature message
 MyMessage RainMsg(0, V_TEMP);
 
-void onewire_node_setup(MySensor& gw)
+void setup_onewire(MySensor& gw, bool present)
 {
+	wdt_reset();
 	// Startup OneWire
 	sensors.begin();
+	wdt_reset();
 
 	// Fetch the number of attached temperature sensors
 	numDallasSensors = sensors.getDeviceCount();
 
+	DEBUG_PRINT("found ");
+	DEBUG_PRINT(numDallasSensors);
+	DEBUG_PRINT(" onewire temperature device(s) on bus ");
+	DEBUG_PRINT_ln(ONE_WIRE_BUS);
+
+	if(present){
+		present_onewire(gw);
+	}
+
+	wdt_reset();
+}
+
+void present_onewire(MySensor& gw)
+{
 	// Present all sensors to controller
 	int i = 0;
 	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
 		gw.present(i, S_TEMP);
+		wdt_reset();
 	}
-
-	DEBUG_PRINT("registered ");
-	DEBUG_PRINT(i);
-	DEBUG_PRINT_ln(" onewire temperature device(s)");
-
 }
 
-void onewire_node_loop(MySensor& gw)
+void loop_onewire(MySensor& gw)
 {
+	wdt_reset();
 	// Fetch temperatures from Dallas sensors
 	sensors.requestTemperatures();
 
@@ -67,7 +82,7 @@ void onewire_node_loop(MySensor& gw)
 				gw.getConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
 
 		// Only send data if temperature has changed and no error
-		if (lastTemperature[i] != temperature && temperature != -127.00)
+		if (abs(lastTemperature[i] - temperature) > MIN_TEMPERATURE_DELTA && temperature != -127.00)
 		{
 			Serial.print("sending temperature for device ");
 			Serial.println(i);
