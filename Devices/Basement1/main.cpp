@@ -11,8 +11,9 @@
 
 #include <si7021_node.hpp>
 #include <serial.hpp>
+#include <digital_input.hpp>
 
-unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
+unsigned long SLEEP_TIME = 60000; // Sleep time between reads (in milliseconds)
 
 #define HUMIDITY_SENSOR_DIGITAL_PIN A1
 
@@ -22,9 +23,13 @@ MySensor gw;
 /**
  * My Sensors
  */
-#define NUMBER_OF_RELAYS 1 // Total number of attached relays
-const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {6};
-const uint8_t relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16};
+#define NUMBER_OF_RELAYS 3 // Total number of attached relays
+const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {7, A2, A1};
+const uint8_t relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18};
+
+#define NUMBER_OF_MOTION_SENSORS 3 // Total number of attached motion sensors
+const uint8_t motion_pins[NUMBER_OF_MOTION_SENSORS] PROGMEM = {8, 3, 6};
+const uint8_t motion_ids [NUMBER_OF_MOTION_SENSORS] PROGMEM = {64, 65, 66};
 #define RELAY_ON 0  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 1 // GPIO value to write to turn off attached relay
 
@@ -36,42 +41,71 @@ void setup()
 	setup_serial();
 	Serial.println("launched");
 
+
+	while(true)
+	{
+		Serial.println("UP A1");
+		digitalWrite(HUMIDITY_SENSOR_DIGITAL_PIN, HIGH);
+		delay(1000);
+		Serial.println("DOWN A1");
+		digitalWrite(HUMIDITY_SENSOR_DIGITAL_PIN, LOW);
+		delay(1000);
+		Serial.println("UP 8");
+		digitalWrite(8, HIGH);
+		delay(1000);
+		Serial.println("DOWN 8");
+		digitalWrite(8, LOW);
+		delay(1000);
+	}
+	return;
+
+
 	//IO PIN 5
 	eeprom_reset_check(A3);
 
 
 	setup_relay(gw, relay_pins, relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
+	setup_digital_input(gw, motion_pins, motion_ids, NUMBER_OF_MOTION_SENSORS, false);
 	analogWrite(A1, 0);
 	pinMode(A1, OUTPUT);
-	setup_dht(gw, 8, 5, false);
+	setup_si7021(gw, 3, false, false);
+	setup_onewire(gw, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
-	gw.begin(incomingMessage, 0x1B, true);
+	gw.begin(incomingMessage, 0xFE, true);
 
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
 
-	present_dht(gw);
-
-	DEBUG_PRINT_ln("Registering relays");
+	present_si7021(gw);
 	present_relays(gw);
+	present_onewire(gw);
+	present_digital_inputs(gw);
+
+	loop_si7021(gw);
+	loop_onewire(gw);
 
 }
+
+uint8_t last_tripped_state;
+unsigned long last_sensor_updates;
 
 void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
 	loop_relays(gw);
-	loop_dht(gw);
+	loop_digital_inputs(gw);
 
-	//Repeater mode needs not sleeping : process messages instead.
-	unsigned long start_millis = millis();
-	while( ((unsigned long)(millis() - start_millis)) < SLEEP_TIME)
+	if(millis() - last_sensor_updates > SLEEP_TIME)
 	{
-		gw.process();
+		loop_si7021(gw);
+		loop_onewire(gw);
+		last_sensor_updates = millis();
 	}
+
+	loop_serial();
 }
 
 

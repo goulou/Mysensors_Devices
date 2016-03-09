@@ -8,7 +8,8 @@ cmake_minimum_required(VERSION 2.6)
 #Set this variable to "avr" or "sam"
 set(MCU "atmega328p")
 set(MCU_MACRO "__AVR_ATmega328P__")
-set(CPU_SPEED "1000000")
+set(CPU_SPEED "8000000")
+set(PROGRAM_DEFS "-DONE_WIRE_BUS=5")
 
 # Set own source files
 # Simply list all your C / C++ source (not header!) files here

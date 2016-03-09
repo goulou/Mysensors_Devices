@@ -10,6 +10,6 @@
 
 
 void eeprom_reset_check(uint8_t reset_pin);
-
+void clear_eeprom();
 
 #endif /* COMMON_EEPROM_RESET_HPP_ */

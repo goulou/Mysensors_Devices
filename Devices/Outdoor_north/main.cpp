@@ -141,13 +141,13 @@ void loop()
 		DEBUG_PRINT_ln(" Pa");
 		DEBUG_PRINT_ln(weather[forecast]);
 
-	//	if (pressure != lastPressure)
+		if (abs(pressure - lastPressure) > 0.5)
 		{
 			gw.send(pressureMsg.set(pressure, 0));
 			lastPressure = pressure;
 		}
 
-	//	if (forecast != lastForecast)
+		if (forecast != lastForecast)
 		{
 			gw.send(forecastMsg.set(weather[forecast]));
 			lastForecast = forecast;

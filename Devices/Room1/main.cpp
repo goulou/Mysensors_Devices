@@ -19,25 +19,20 @@ unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 void setup()
 {
 	Serial.begin(BAUD_RATE);
-	int i=0;
 	setup_serial();
 	Serial.println("launched");
 
-//	eeprom_reset_check(3);
+	eeprom_reset_check(4);
 
-	Serial.println("begin");
-	setup_si7021(gw, 10, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 20);
-//	Serial.println("setPALevel");
-//	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	Serial.println("sendSketchInfo");
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
-	present_si7021(gw);
+	setup_si7021(gw, 10);
 	battery_monitored_node_setup(gw, BATTERY_SENSE_PIN);
 }
 

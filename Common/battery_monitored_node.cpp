@@ -39,6 +39,7 @@ void battery_monitored_node_setup(MySensor& gw, uint8_t pin)
 
 void battery_monitored_node_loop(MySensor& gw)
 {
+	wdt_reset();
 	// get the battery Voltage
 	int sensorValue = analogRead(battery_pin);
 
@@ -66,4 +67,5 @@ void battery_monitored_node_loop(MySensor& gw)
 		}
 		oldBatteryPcnt = batteryPcnt;
 	}
+	wdt_reset();
 }

@@ -27,13 +27,17 @@ static int failed_count = 0;
 
 void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 {
+	wdt_reset();
 	dht.setup(pin);
+	wdt_reset();
 	DEBUG_PRINT("Waiting for DHT on pin ");
 	DEBUG_PRINT_ln(pin);
 	delay(500);
+	wdt_reset();
 	if(dht.getModel() == dht.DHT11)
 	{//You should wait at least 1000ms if a DHT11 is detected
 		delay(500);
+		wdt_reset();
 	}
 	DEBUG_PRINT_ln("DHT Ready");
 	// Startup OneWire
@@ -43,10 +47,12 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 	failed_count = 0;
 	while(isnan(dht.getTemperature()) && (max_try==0 || failed_count < max_try))
 	{
+		wdt_reset();
 		DEBUG_PRINT_ln("Temperature is NaN");
 		DEBUG_PRINT_ln(dht.getStatusString());
 		digitalWrite(13, HIGH);
 		delay(200);
+		wdt_reset();
 		digitalWrite(13, LOW);
 		delay(1000);
 		DEBUG_PRINT_ln("reading");
@@ -59,10 +65,12 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 	DEBUG_PRINT("humidity       : ");
 	DEBUG_PRINT_ln(dht.getHumidity());
 
+	wdt_reset();
 	if(present)
 	{
 		present_dht(gw);
 	}
+	wdt_reset();
 }
 
 void present_dht(MySensor& gw)

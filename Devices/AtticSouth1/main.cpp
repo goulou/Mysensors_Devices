@@ -9,6 +9,7 @@
 #include <dht_node.hpp>
 #include <1w_node.hpp>
 #include <relay_node.hpp>
+#include <si7021_node.hpp>
 #include <serial.hpp>
 
 MyTransportNRF24 transport(/*_cepin=*/14, /*_cspin=*/15, RF24_PA_MAX);
@@ -53,7 +54,8 @@ void setup()
 
 
 	setup_relay(gw, relay_pins, relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_dht(gw, HUMIDITY_SENSOR_DIGITAL_PIN, 5, false);
+//	setup_dht(gw, HUMIDITY_SENSOR_DIGITAL_PIN, 5, false);
+	setup_si7021(gw, 5, false, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(incomingMessage, 69, true);
@@ -61,9 +63,8 @@ void setup()
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
-	onewire_node_setup(gw);
-
-	present_dht(gw);
+//	present_dht(gw);
+	present_si7021(gw);
 
 	DEBUG_PRINT_ln("Registering relays");
 	present_relays(gw);
@@ -73,9 +74,9 @@ void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
-	onewire_node_loop(gw);
 	loop_relays(gw);
-	loop_dht(gw);
+	loop_si7021(gw);
+//	loop_dht(gw);
 
 	//Repeater mode needs not sleeping : process messages instead.
 	unsigned long start_millis = millis();

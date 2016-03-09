@@ -36,14 +36,19 @@ void eeprom_reset_check(uint8_t reset_pin)
 			if(ok)
 			{
 				DEBUG_PRINT_ln("RESET PIN HIGH : clearing EEPROM");
-				for (int i=0;i<EEPROM.length();i++)
-				{
-					EEPROM.write(i, 0xff);
-				}
+				clear_eeprom();
 			}
 			break;
 		}
 	}
 
 	DEBUG_PRINT_ln("Not clearing EEPROM");
+}
+
+void clear_eeprom()
+{
+	for (int i=0;i<EEPROM.length();i++)
+	{
+		EEPROM.write(i, 0xff);
+	}
 }

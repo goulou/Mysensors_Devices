@@ -19,18 +19,14 @@ unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 void setup()
 {
 	Serial.begin(BAUD_RATE);
-	int i=0;
 	setup_serial();
 	Serial.println("launched");
 
-//	eeprom_reset_check(3);
+	eeprom_reset_check(4);
 
-	Serial.println("begin");
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
 	gw.begin(NULL, 28);
-//	Serial.println("setPALevel");
-//	gw.setPALevel(RF24_PA_MAX);
 
 	// Send the sketch version information to the gateway and Controller
 	Serial.println("sendSketchInfo");

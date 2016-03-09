@@ -118,7 +118,7 @@ boolean incoming_message_relay(MySensor& gw, const MyMessage &message)
 		return false;
 	}
 	// Change relay state
-	bool value = value;
+	bool value = message.getBool();
 	uint8_t state = get_state_for_value(id, value);
 	digitalWrite(pin, state);
 	// Store state in eeprom
@@ -126,6 +126,8 @@ boolean incoming_message_relay(MySensor& gw, const MyMessage &message)
 	// Write some debug info
 	Serial.print("Incoming change for Relay:");
 	Serial.print(message.sensor);
+	Serial.print(" on pin ");
+	Serial.print(pin);
 	Serial.print(", New status value=");
 	Serial.print(value);
 	Serial.print(":");
