@@ -9,8 +9,10 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include "printf.hpp"
 #include "eeprom_reset.hpp"
+#include "serial.hpp"
+
+
 
 void eeprom_reset_check(uint8_t reset_pin)
 {

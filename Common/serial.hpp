@@ -20,7 +20,9 @@
 
 int serial_putc( char c, FILE * );
 
-void printf_begin(void);
+void loop_serial();
+void setup_serial();
+
 
 #define xstr(s) str(s)
 #define str(s) #s

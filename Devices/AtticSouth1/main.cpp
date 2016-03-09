@@ -8,8 +8,8 @@
 
 #include <dht_node.hpp>
 #include <1w_node.hpp>
-#include <printf.hpp>
 #include <relay_node.hpp>
+#include <serial.hpp>
 
 MyTransportNRF24 transport(/*_cepin=*/14, /*_cspin=*/15, RF24_PA_MAX);
 MyHwDriver hw;
@@ -45,9 +45,8 @@ void incomingMessage(const MyMessage &message);
 void setup()
 {
 	Serial.begin(BAUD_RATE);
+	setup_serial();
 	Serial.println("launched");
-
-	printf_begin();
 
 	//IO PIN 5
 	eeprom_reset_check(3);
@@ -83,6 +82,7 @@ void loop()
 	while( ((unsigned long)(millis() - start_millis)) < SLEEP_TIME)
 	{
 		gw.process();
+		loop_serial();
 	}
 }
 

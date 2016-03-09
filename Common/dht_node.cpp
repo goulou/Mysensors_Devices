@@ -9,9 +9,8 @@
 #include <MySensor.h>
 #include <DHT.h>
 
-#include "printf.hpp"
-
 #include "dht_node.hpp"
+#include "serial.hpp"
 
 /**
  * DHT

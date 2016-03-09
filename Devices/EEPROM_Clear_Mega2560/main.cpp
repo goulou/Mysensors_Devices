@@ -2,11 +2,11 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include <printf.hpp>
+#include <serial.hpp>
 void setup()
 {
 	Serial.begin(115200);
-	printf_begin();
+	setup_serial();
 
 	Serial.println("Clearing EEPROM");
 	for (int i=0;i<512;i++)

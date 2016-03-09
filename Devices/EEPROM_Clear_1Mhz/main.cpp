@@ -2,14 +2,14 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include <printf.hpp>
+#include <serial.hpp>
 
 #define LED_PIN 13
 
 void setup()
 {
 	Serial.begin(9600);
-	printf_begin();
+	setup_serial();
 
 	Serial.println("Clearing EEPROM");
 	for (int i=0;i<512;i++)

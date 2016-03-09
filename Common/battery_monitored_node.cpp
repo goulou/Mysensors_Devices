@@ -10,8 +10,8 @@
 #include <DallasTemperature.h>
 
 
-#include "printf.hpp"
 #include "battery_monitored_node.hpp"
+#include "serial.hpp"
 
 
 #ifdef INTERNAL1V1

@@ -6,11 +6,11 @@
 #include <DHT.h>
 
 #include <eeprom_reset.hpp>
-#include <printf.hpp>
 #include <dht_node.hpp>
 #include <1w_node.hpp>
 
 #include <si7021_node.hpp>
+#include <serial.hpp>
 
 unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 
@@ -23,8 +23,9 @@ MySensor gw;
 void setup()
 {
 	Serial.begin(BAUD_RATE);
+	setup_serial();
+
 	Serial.println("launched");
-	printf_begin();
 
 	eeprom_reset_check(3);
 
@@ -39,7 +40,7 @@ void setup()
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
 
-	onewire_node_setup(gw);
+	setup_onewire(gw);
 	present_si7021(gw);
 	present_dht(gw);
 	// Register all sensors to gw (they will be created as child devices)
@@ -51,8 +52,9 @@ void loop()
 {
 	// Process incoming messages (like config from server)
 	gw.process();
+	wdt_reset();
 	Serial.print(".");
-	onewire_node_loop(gw);
+	loop_onewire(gw);
 	loop_si7021(gw);
 
 	unsigned long sleep_time = SLEEP_TIME;
@@ -67,6 +69,7 @@ void loop()
 	while( ((unsigned long)(millis() - start_millis)) < sleep_time)
 	{
 		gw.process();
+		loop_serial();
 	}
 }
 

@@ -6,9 +6,8 @@
 #include <1w_node.hpp>
 #include <dht_node.hpp>
 #include <battery_monitored_node.hpp>
-#include <printf.hpp>
-
 #include <si7021_node.hpp>
+#include <serial.hpp>
 
 MySensor gw;
 unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
@@ -21,8 +20,8 @@ void setup()
 {
 	Serial.begin(BAUD_RATE);
 	int i=0;
+	setup_serial();
 	Serial.println("launched");
-	printf_begin();
 
 //	eeprom_reset_check(3);
 
@@ -54,5 +53,6 @@ void loop()
 	battery_monitored_node_loop(gw);
 
 	gw.sleep(SLEEP_TIME);
+	wdt_reset();
 }
 

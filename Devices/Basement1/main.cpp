@@ -5,12 +5,12 @@
 #include <DHT.h>
 
 #include <eeprom_reset.hpp>
-#include <printf.hpp>
 #include <dht_node.hpp>
 #include <1w_node.hpp>
 #include <relay_node.hpp>
 
 #include <si7021_node.hpp>
+#include <serial.hpp>
 
 unsigned long SLEEP_TIME = 30000; // Sleep time between reads (in milliseconds)
 
@@ -33,8 +33,8 @@ void incomingMessage(const MyMessage &message);
 void setup()
 {
 	Serial.begin(BAUD_RATE);
+	setup_serial();
 	Serial.println("launched");
-	printf_begin();
 
 	//IO PIN 5
 	eeprom_reset_check(A3);

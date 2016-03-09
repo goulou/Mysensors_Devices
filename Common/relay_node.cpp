@@ -8,9 +8,8 @@
 #include <stdint.h>
 #include <MySensor.h>
 
-#include "printf.hpp"
-
 #include "relay_node.hpp"
+#include "serial.hpp"
 
 #define MAX_RELAY_COUNT 32
 #define BAD_ID	0xFF

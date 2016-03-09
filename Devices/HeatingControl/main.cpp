@@ -6,7 +6,7 @@
 #include <LiquidCrystal.h>
 #include <EmonLib.h>
 
-#include <printf.hpp>
+#include <serial.hpp>
 
 #define NUMBER_OF_RELAYS 16 // Total number of attached relays
 const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {22, 24, 26, 28, 23, 25, 27, 29, 34, 35, 36, 37, 38, 39, 40, 41};

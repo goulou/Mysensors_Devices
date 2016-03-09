@@ -9,8 +9,8 @@
 #include <MySensor.h>
 #include <SI7021.h>
 
-#include "printf.hpp"
 #include "si7021_node.hpp"
+#include "serial.hpp"
 
 /**
  * Temp+Hum
