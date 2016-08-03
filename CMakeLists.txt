@@ -22,6 +22,7 @@ set(COMPILE_FLAGS "")
 # Configure these according to your MySensors and Arduino installations
 set(MYSENSORS_PATH "${CMAKE_SOURCE_DIR}/MySensors" CACHE PATH "Mysensors path")
 set(ARDUINO_PATH  "${CMAKE_SOURCE_DIR}/Arduino"   CACHE PATH "Path to arduino installation")
+set(LIBRARIES_PATH  "${CMAKE_SOURCE_DIR}/libraries"   CACHE PATH "Path to common libraries")
 set(ARDUINO_TOOLSET_PATH  "/usr"   CACHE PATH "Path to arduino binaries")
 
 # Set own source files

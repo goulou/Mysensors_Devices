@@ -9,4 +9,4 @@
 	url = ../MySensors_cmake.git
 [submodule "libraries/SI7021"]
 	path = libraries/SI7021
-	url = ../SI7021.git
+	url = git@github.com:goulou/SI7021.git
