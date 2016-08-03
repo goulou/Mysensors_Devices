@@ -19,6 +19,6 @@ add_definitions("-DSERIAL_TX_BUFFER_SIZE=64")
 add_definitions("-DDIGITAL_INPUT_NO_DEBOUNCE")
 make_arduino_program(${PROJECT_NAME})
 
+target_link_libraries(${PROJECT_NAME} Arduino_SPI_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Arduino_SI7021_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} Common_${DEVICE_NAME})
-
-
