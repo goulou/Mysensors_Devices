@@ -6,7 +6,7 @@
  */
 
 
-#include <MySensor.h>
+#include <MySensors.h>
 #include <SI7021.h>
 
 #include "si7021_node.hpp"
@@ -34,13 +34,13 @@ static int print_debug = true;
 #define MIN_HUMIDITY_DELTA 1
 #endif
 
-void setup_si7021(MySensor& gw, int max_try, boolean present, boolean debug)
+void setup_si7021(int max_try, boolean present, boolean debug)
 {
 	wdt_reset();
 	print_debug = debug;
 	delay(500);
 	wdt_reset();
-	DEBUG_PRINT_ln("openning SI7021");
+	DEBUG_PRINT_ln(F("openning SI7021"));
 	si7021_sensor.begin();
 
 	// Register all sensors to gw (they will be created as child devices)
@@ -48,7 +48,7 @@ void setup_si7021(MySensor& gw, int max_try, boolean present, boolean debug)
 	while(si7021_sensor.sensorExists()==false && (max_try==0 || failed_count < max_try))
 	{
 		wdt_reset();
-		DEBUG_PRINT_ln("SI7021 not available");
+		DEBUG_PRINT_ln(F("SI7021 not available"));
 		digitalWrite(13, HIGH);
 		delay(200);
 		digitalWrite(13, LOW);
@@ -62,35 +62,37 @@ void setup_si7021(MySensor& gw, int max_try, boolean present, boolean debug)
 
 	if(present)
 	{
-		present_si7021(gw);
+		present_si7021();
 	}
 	else if(si7021_sensor.sensorExists())
 	{
-		DEBUG_PRINT_ln("SI7021 available");
+		DEBUG_PRINT_ln(F("SI7021 available"));
 	}
 	wdt_reset();
 
 }
 
-void present_si7021(MySensor& gw)
+void present_si7021()
 {
+	wdt_reset();
 	if (si7021_sensor.sensorExists() == true)
 	{
-		DEBUG_PRINT_ln("SI7021 OK : presenting");
-		gw.present(CHILD_ID_HUM, S_HUM);
-		gw.present(CHILD_ID_TEMP, S_TEMP);
+		DEBUG_PRINT_ln(F("SI7021 OK : presenting"));
+		present(CHILD_ID_HUM, S_HUM);
+		wdt_reset();
+		present(CHILD_ID_TEMP, S_TEMP);
 		registered = true;
 		failed_count = 0;
 	}
 	else
 	{
-		DEBUG_PRINT_ln("SI7021 NOK : not presenting");
+		DEBUG_PRINT_ln(F("SI7021 NOK : not presenting"));
 		registered = false;
 	}
-
+	wdt_reset();
 }
 
-boolean loop_si7021(MySensor& gw)
+boolean loop_si7021()
 {
 	wdt_reset();
 	if (registered)
@@ -109,16 +111,17 @@ boolean loop_si7021(MySensor& gw)
 		if(isnan(temperature) || isnan(humidity))
 		{
 			failed_count++;
-			DEBUG_PRINT_ln("unable to read si7021");
+			DEBUG_PRINT_ln(F("unable to read si7021"));
 			if(failed_count >=20)
 			{
 				while(true)
 				{
+					wdt_reset();
 					digitalWrite(13, LOW);
-					gw.sleep(500);
+					sleep(500);
 					digitalWrite(13, HIGH);
-					gw.sleep(500);
-					DEBUG_PRINT_ln("unable to read si7021");
+					sleep(500);
+					DEBUG_PRINT_ln(F("unable to read si7021"));
 				}
 			}
 			return false;
@@ -127,32 +130,23 @@ boolean loop_si7021(MySensor& gw)
 		{
 			failed_count = 0;
 
-			if (abs(temperature - lastTemp) > MIN_TEMP_DELTA)
+			if (abs(temperature - lastTemp) > MIN_TEMP_DELTA || abs(humidity - lastHum) > MIN_HUMIDITY_DELTA )
 			{
 				lastTemp = temperature;
-				MyMessage msg(CHILD_ID_TEMP, V_TEMP);
-				gw.send(msg.set(temperature, 1));
-		//		Serial.print("T: ");
-		//		DEBUGln(temperature);
-			}
-			else if(print_debug)
-			{
-				DEBUG_PRINT_ln("temperature did not change");
-			}
-
-			if (abs(humidity - lastHum) > MIN_HUMIDITY_DELTA )
-			{
 				lastHum = humidity;
-				MyMessage msg(CHILD_ID_HUM, V_HUM);
-				gw.send(msg.set(humidity, 1));
-		//		Serial.print("H: ");
-		//		DEBUGln(humidity);
+
+				wdt_reset();
+				MyMessage msg1(CHILD_ID_TEMP, V_TEMP);
+				send(msg1.set(temperature, 1));
+
+				wdt_reset();
+				MyMessage msg2(CHILD_ID_HUM, V_HUM);
+				send(msg2.set(humidity, 1));
 			}
 			else if(print_debug)
 			{
-				DEBUG_PRINT_ln("humidity did not change");
+				DEBUG_PRINT_ln(F("temp&hum did not change"));
 			}
-
 		}
 	}
 

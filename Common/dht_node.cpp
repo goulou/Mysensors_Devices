@@ -30,7 +30,7 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 	wdt_reset();
 	dht.setup(pin);
 	wdt_reset();
-	DEBUG_PRINT("Waiting for DHT on pin ");
+	DEBUG_PRINT(F("Waiting for DHT on pin "));
 	DEBUG_PRINT_ln(pin);
 	delay(500);
 	wdt_reset();
@@ -39,7 +39,7 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 		delay(500);
 		wdt_reset();
 	}
-	DEBUG_PRINT_ln("DHT Ready");
+	DEBUG_PRINT_ln(F("DHT Ready"));
 	// Startup OneWire
 //	sensors.begin();
 	dht.readSensor();
@@ -48,21 +48,21 @@ void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present)
 	while(isnan(dht.getTemperature()) && (max_try==0 || failed_count < max_try))
 	{
 		wdt_reset();
-		DEBUG_PRINT_ln("Temperature is NaN");
+		DEBUG_PRINT_ln(F("Temperature is NaN"));
 		DEBUG_PRINT_ln(dht.getStatusString());
 		digitalWrite(13, HIGH);
 		delay(200);
 		wdt_reset();
 		digitalWrite(13, LOW);
 		delay(1000);
-		DEBUG_PRINT_ln("reading");
+		DEBUG_PRINT_ln(F("reading"));
 		dht.readSensor();
 		failed_count ++;
 	}
 
-	DEBUG_PRINT("temperature OK : ");
+	DEBUG_PRINT(F("temperature OK : "));
 	DEBUG_PRINT_ln(dht.getTemperature());
-	DEBUG_PRINT("humidity       : ");
+	DEBUG_PRINT(F("humidity       : "));
 	DEBUG_PRINT_ln(dht.getHumidity());
 
 	wdt_reset();
@@ -77,7 +77,7 @@ void present_dht(MySensor& gw)
 {
 	if (isnan(dht.getTemperature()) == false)
 	{
-		DEBUG_PRINT_ln("DHT OK : presenting");
+		DEBUG_PRINT_ln(F("DHT OK : presenting"));
 		gw.present(CHILD_ID_HUM, S_HUM);
 		gw.present(CHILD_ID_TEMP, S_TEMP);
 		DHT_registered = true;
@@ -85,7 +85,7 @@ void present_dht(MySensor& gw)
 	}
 	else
 	{
-		DEBUG_PRINT_ln("DHT NOK : not presenting");
+		DEBUG_PRINT_ln(F("DHT NOK : not presenting"));
 		DHT_registered = false;
 	}
 
@@ -103,7 +103,7 @@ boolean loop_dht(MySensor& gw)
 		if(isnan(temperature) || isnan(humidity))
 		{
 			failed_count++;
-			DEBUG_PRINT_ln("unable to read");
+			DEBUG_PRINT_ln(F("unable to read"));
 			DEBUG_PRINT_ln(dht.getStatusString());
 			if(failed_count >=20)
 			{
@@ -113,7 +113,7 @@ boolean loop_dht(MySensor& gw)
 					gw.sleep(500);
 					digitalWrite(13, HIGH);
 					gw.sleep(500);
-					DEBUG_PRINT_ln("unable to read");
+					DEBUG_PRINT_ln(F("unable to read"));
 				}
 			}
 			return false;
@@ -131,12 +131,12 @@ boolean loop_dht(MySensor& gw)
 				}
 				MyMessage msg(CHILD_ID_TEMP, V_TEMP);
 				gw.send(msg.set(temperature, 1));
-				Serial.print("T: ");
+				Serial.print(F("T: "));
 				DEBUG_PRINT_ln(temperature);
 			}
 			else
 			{
-				DEBUG_PRINT_ln("temperature did not change");
+				DEBUG_PRINT_ln(F("temperature did not change"));
 			}
 
 			if (humidity != lastHum)
@@ -144,12 +144,12 @@ boolean loop_dht(MySensor& gw)
 				lastHum = humidity;
 				MyMessage msg(CHILD_ID_HUM, V_HUM);
 				gw.send(msg.set(humidity, 1));
-				Serial.print("H: ");
+				Serial.print(F("H: "));
 				DEBUG_PRINT_ln(humidity);
 			}
 			else
 			{
-				DEBUG_PRINT_ln("humidity did not change");
+				DEBUG_PRINT_ln(F("humidity did not change"));
 			}
 
 		}

@@ -8,9 +8,9 @@
 
 #include <dht_node.hpp>
 #include <1w_node.hpp>
-#include <relay_node.hpp>
 #include <si7021_node.hpp>
 #include <serial.hpp>
+#include "../../Common/digital_output.hpp"
 
 MyTransportNRF24 transport(/*_cepin=*/14, /*_cspin=*/15, RF24_PA_MAX);
 MyHwDriver hw;

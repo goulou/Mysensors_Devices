@@ -16,7 +16,6 @@ set(PIN_VARIANT "mega")
 file(GLOB SRC_FILES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB SRC_FILES_C   ${CMAKE_CURRENT_SOURCE_DIR}/*.c  )
 
-add_definitions(-DDEBUG)
 make_arduino_program(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} Arduino_LiquidCrystal_${DEVICE_NAME})

@@ -18,3 +18,6 @@ file(GLOB SRC_FILES_C   ${CMAKE_CURRENT_SOURCE_DIR}/*.c  )
 
 make_arduino_program(${PROJECT_NAME})
 
+target_link_libraries(${PROJECT_NAME} Arduino_SPI_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Arduino_SI7021_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Common_${DEVICE_NAME})

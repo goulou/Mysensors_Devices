@@ -167,7 +167,13 @@ void loop()
 
 	battery_monitored_node_loop(gw);
 
+	wdt_reset();
+	wdt_disable();
 	gw.sleep(SLEEP_TIME);
+	wdt_reset();
+	wdt_enable(WDTO_8S);
+	wdt_reset();
+
 }
 
 float get_pressure_sample(int idx)

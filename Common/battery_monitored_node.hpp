@@ -10,8 +10,8 @@
 
 
 
-void battery_monitored_node_setup(MySensor& gw, uint8_t pin);
-void battery_monitored_node_loop(MySensor& gw);
+void battery_monitored_node_setup(uint8_t pin);
+void battery_monitored_node_loop();
 
-
+#include "battery_monitored_node.cpp"
 #endif /* COMMON_BATTERY_MONITORED_NODE_HPP_ */

@@ -39,6 +39,7 @@ void setup_onewire(MySensor& gw, bool present)
 	wdt_reset();
 	// Startup OneWire
 	sensors.begin();
+	sensors.setResolution(9);
 	wdt_reset();
 
 	// Fetch the number of attached temperature sensors
@@ -46,7 +47,7 @@ void setup_onewire(MySensor& gw, bool present)
 
 	DEBUG_PRINT("found ");
 	DEBUG_PRINT(numDallasSensors);
-	DEBUG_PRINT(" onewire temperature device(s) on bus ");
+	DEBUG_PRINT(F(" onewire temperature device(s) on bus "));
 	DEBUG_PRINT_ln(ONE_WIRE_BUS);
 
 	if(present){
@@ -58,6 +59,7 @@ void setup_onewire(MySensor& gw, bool present)
 
 void present_onewire(MySensor& gw)
 {
+	wdt_reset();
 	// Present all sensors to controller
 	int i = 0;
 	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)

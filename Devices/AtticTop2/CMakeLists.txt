@@ -15,8 +15,6 @@ set(CPU_SPEED "1000000")
 file(GLOB SRC_FILES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB SRC_FILES_C   ${CMAKE_CURRENT_SOURCE_DIR}/*.c  )
 
-add_definitions("-DSERIAL_TX_BUFFER_SIZE=64")
-add_definitions("-DDIGITAL_INPUT_NO_DEBOUNCE")
 make_arduino_program(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} Common_${DEVICE_NAME})

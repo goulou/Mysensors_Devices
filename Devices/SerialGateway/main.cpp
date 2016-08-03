@@ -22,116 +22,93 @@
  */
 
 
-#define NO_PORTB_PINCHANGES
-
-#include <MySigningNone.h>
-#include <MyTransportRFM69.h>
-#include <MyTransportNRF24.h>
-#include <MyHwATMega328.h>
-#include <MySigningAtsha204Soft.h>
-#include <MySigningAtsha204.h>
-
-#include <SPI.h>
-#include <MyParserSerial.h>
-#include <MySensor.h>
-#include <stdarg.h>
-#include <PinChangeInt.h>
-#include "GatewayUtil.h"
+#ifndef BAUD_RATE
+#define BAUD_RATE 9600
+#endif
+#define MY_BAUD_RATE BAUD_RATE
 
 
-#include <stdarg.h>
-#include <serial.hpp>
 
 
-#define INCLUSION_MODE_TIME 1 // Number of minutes inclusion mode is enabled
-#define INCLUSION_MODE_PIN 3 // Digital pin used for inclusion mode button
-// NRFRF24L01 radio driver (set low transmit power by default)
-MyTransportNRF24 transport(RF24_CE_PIN, RF24_CS_PIN, RF24_PA_MAX);
-//MyTransportRFM69 transport;
+// Enable debug prints to serial monitor
+#define MY_DEBUG
 
-// Message signing driver (signer needed if MY_SIGNING_FEATURE is turned on in MyConfig.h)
-//MySigningNone signer;
-//MySigningAtsha204Soft signer;
-//MySigningAtsha204 signer;
 
-// Hardware profile
-MyHwATMega328 hw;
+// Enable and select radio type attached
+#define MY_RADIO_NRF24
 
-// Construct MySensors library (signer needed if MY_SIGNING_FEATURE is turned on in MyConfig.h)
-// To use LEDs blinking, uncomment WITH_LEDS_BLINKING in MyConfig.h
-#ifdef WITH_LEDS_BLINKING
-MySensor gw(transport, hw /*, signer*/, RADIO_RX_LED_PIN, RADIO_TX_LED_PIN, RADIO_ERROR_LED_PIN);
-#else
-MySensor gw(transport, hw /*, signer*/);
+// Set LOW transmit power level as default, if you have an amplified NRF-module and
+// power your radio separately with a good regulator you can turn up PA level.
+#define MY_RF24_PA_LEVEL RF24_PA_LOW
+
+// Enable serial gateway
+#define MY_GATEWAY_SERIAL
+
+// Define a lower baud rate for Arduino's running on 8 MHz (Arduino Pro Mini 3.3V & SenseBender)
+#if F_CPU == 8000000L
+#define MY_BAUD_RATE 38400
 #endif
 
+// Inverses the behavior of leds
+//#define MY_WITH_LEDS_BLINKING_INVERSE
+
+#include <SPI.h>
+#include <MySensors.h>
 
 
-char inputString[MAX_RECEIVE_LENGTH] = "";    // A string to hold incoming commands from serial/ethernet interface
-int inputPos = 0;
-boolean commandComplete = false;  // whether the string is complete
-
-void parseAndSend(char *commandBuffer);
-
-void output(const char *fmt, ... ) {
-   va_list args;
-   va_start (args, fmt );
-   vsnprintf_P(serialBuffer, MAX_SEND_LENGTH, fmt, args);
-   va_end (args);
-   Serial.print(serialBuffer);
-}
+#define SKETCH_NAME xstr(PROGRAM_NAME)
+#define SKETCH_MAJOR_VER "2"
+#define SKETCH_MINOR_VER "0"
 
 
-void setup()
+#define NUMBER_OF_RELAYS 4 // Total number of attached relays
+const uint8_t output_relay_pins[NUMBER_OF_RELAYS] PROGMEM = {A1, 8, 6, 3};
+const uint8_t output_relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18, 19};
+#define RELAY_ON 1  // GPIO value to write to turn on attached relay
+#define RELAY_OFF 0 // GPIO value to write to turn off attached relay
+
+#define NUMBER_OF_DIGITAL_SENSORS 4 // Total number of attached motion sensors
+const uint8_t gw_input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {7, 5, A3, A2};
+const uint8_t gw_input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66, 67};
+const mysensor_sensor gw_input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {S_DOOR, S_MOTION, S_MOTION, S_MOTION};
+
+#include <digital_input.hpp>
+#include <digital_output.hpp>
+#include <si7021_node.hpp>
+
+void before()
 {
-	setupGateway(INCLUSION_MODE_PIN, INCLUSION_MODE_TIME, output);
-  gw.begin(incomingMessage, 0, true, 0);
-
-  // Send startup log message on serial
-  serial(PSTR("0;0;%d;0;%d;Gateway startup complete.\n"),  C_INTERNAL, I_GATEWAY_READY);
+	setup_digital_output(output_relay_pins, output_relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
+	setup_digital_input(gw_input_pins, gw_input_ids, NUMBER_OF_DIGITAL_SENSORS, false, true, gw_input_types);
+	setup_si7021(3, false, false);
 }
+
+void setup() {
+	  // Setup locally attached sensors
+}
+
+void presentation()
+{
+	 // Present locally attached sensors
+  // Send the sketch version information to the gateway and Controller
+	sendSketchInfo(SKETCH_NAME, SKETCH_MAJOR_VER "." SKETCH_MINOR_VER);
+	present_digital_output();
+	present_digital_inputs();
+	present_si7021();
+}
+
 
 void loop()
 {
-  gw.process();
-
-  if (commandComplete) {
-    // A command wass issued from serial interface
-    // We will now try to send it to the actuator
-    parseAndSend(gw, inputString);
-    commandComplete = false;
-    inputPos = 0;
-  }
+	loop_digital_inputs();
+	loop_digital_output();
+	loop_si7021();
+	  // Send locally attached sensor data here
 }
 
-
-/*
-  SerialEvent occurs whenever a new data comes in the
- hardware serial RX.  This routine is run between each
- time loop() runs, so using delay inside loop can delay
- response.  Multiple bytes of data may be available.
- */
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inputPos<MAX_RECEIVE_LENGTH-1 && !commandComplete) {
-      if (inChar == '\n') {
-        inputString[inputPos] = 0;
-        commandComplete = true;
-      } else {
-        // add it to the inputString:
-        inputString[inputPos] = inChar;
-        inputPos++;
-      }
-    } else {
-       // Incoming message too long. Throw away
-        inputPos = 0;
-    }
-  }
+void receive(const MyMessage &message)
+{
+	// We only expect one type of message from controller. But we better check anyway.
+	incoming_message_digital_output(message);
 }
-
-
 

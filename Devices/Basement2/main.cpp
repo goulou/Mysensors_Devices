@@ -6,7 +6,6 @@
 
 #include <eeprom_reset.hpp>
 #include <dht_node.hpp>
-#include <1w_node.hpp>
 #include <si7021_node.hpp>
 #include <serial.hpp>
 #include <digital_input.hpp>
@@ -22,68 +21,58 @@ MySensor gw;
 /**
  * My Sensors
  */
-#define NUMBER_OF_RELAYS 3 // Total number of attached relays
-const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {7, A2, A1};
-const uint8_t relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18};
+#define NUMBER_OF_RELAYS 4 // Total number of attached relays
+const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {7, 5, A3, A2};
+const uint8_t relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18, 19};
 
-#define NUMBER_OF_DIGITAL_SENSORS 3 // Total number of attached motion sensors
-const uint8_t motion_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {8, 3, 6};
-const uint8_t motion_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66};
+#define NUMBER_OF_DIGITAL_SENSORS 4 // Total number of attached motion sensors
+const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {3, 6, 8, A1};
+const uint8_t input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66, 67};
+const mysensor_sensor input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {S_DOOR, S_MOTION, S_MOTION, S_MOTION};
 #define RELAY_ON 0  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 1 // GPIO value to write to turn off attached relay
 
 void incomingMessage(const MyMessage &message);
 
+int freeRam () {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
+
 void setup()
 {
 	Serial.begin(BAUD_RATE);
-	setup_serial();
-	Serial.println("launched");
-
-
-	while(true)
-	{
-		Serial.println("UP A1");
-		digitalWrite(HUMIDITY_SENSOR_DIGITAL_PIN, HIGH);
-		delay(1000);
-		Serial.println("DOWN A1");
-		digitalWrite(HUMIDITY_SENSOR_DIGITAL_PIN, LOW);
-		delay(1000);
-		Serial.println("UP 8");
-		digitalWrite(8, HIGH);
-		delay(1000);
-		Serial.println("DOWN 8");
-		digitalWrite(8, LOW);
-		delay(1000);
-	}
-	return;
-
-
+	setup_serial(false);
+	wdt_disable();
 	//IO PIN 5
-	eeprom_reset_check(A3);
-
+	eeprom_reset_check(4);
+	wdt_reset();
 
 	setup_relay(gw, relay_pins, relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_digital_input(gw, motion_pins, motion_ids, NUMBER_OF_DIGITAL_SENSORS, false);
-	analogWrite(A1, 0);
-	pinMode(A1, OUTPUT);
+	setup_digital_input(gw, input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, true, input_types);
 	setup_si7021(gw, 3, false, false);
-	setup_onewire(gw, false);
+//	setup_onewire(gw, false);
 
+	wdt_reset();
+	wdt_disable();
 	// Startup and initialize MySensors library. Set callback for incoming messages.
-	gw.begin(incomingMessage, 0xFE, true);
+	gw.begin(incomingMessage, 0x8, false);
+	wdt_reset();
 
 	// Send the sketch version information to the gateway and Controller
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
-
+	wdt_reset();
 
 	present_si7021(gw);
-	present_relays(gw);
-	present_onewire(gw);
-	present_digital_inputs(gw);
+//	present_relays(gw);
+//	present_onewire(gw);
+//	present_digital_inputs(gw);
 
-	loop_si7021(gw);
-	loop_onewire(gw);
+	wdt_reset();
+	wdt_enable(WDTO_8S);
+//	loop_si7021(gw);
+//	loop_onewire(gw);
 
 }
 
@@ -92,6 +81,7 @@ unsigned long last_sensor_updates;
 
 void loop()
 {
+	wdt_reset();
 	// Process incoming messages (like config from server)
 	gw.process();
 	loop_relays(gw);
@@ -99,8 +89,9 @@ void loop()
 
 	if(millis() - last_sensor_updates > SLEEP_TIME)
 	{
+		wdt_reset();
 		loop_si7021(gw);
-		loop_onewire(gw);
+//		loop_onewire(gw);
 		last_sensor_updates = millis();
 	}
 
@@ -110,18 +101,20 @@ void loop()
 
 void incomingMessage(const MyMessage &message)
 {
+	wdt_reset();
 	// We only expect one type of message from controller. But we better check anyway.
 	if (incoming_message_relay(gw, message))
 	{
-		Serial.println("Incomming msg was for relay");
+		wdt_reset();
+		Serial.println(F("Incomming msg was for relay"));
 	}
 	else
 	{
-		Serial.print("unknown message type : ");
+		Serial.print(F("unknown message type : "));
 		Serial.print(message.type);
-		Serial.print(" -- ");
+		Serial.print(F(" -- "));
 		Serial.print(message.sensor);
-		Serial.print(", New status: ");
+		Serial.print(F(", New status: "));
 		Serial.println(message.getBool());
 	}
 }

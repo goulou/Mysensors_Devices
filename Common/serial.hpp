@@ -16,20 +16,26 @@
 #ifndef __PRINTF_H__
 #define __PRINTF_H__
 
+#include <stdbool.h>
+#include <stddef.h>
+
+
 #include <HardwareSerial.h>
 
 int serial_putc( char c, FILE * );
 
 void loop_serial();
-void setup_serial();
+void setup_serial(bool enable_watchdog=true);
 
 
 #define xstr(s) str(s)
 #define str(s) #s
 
 #ifdef DEBUG
-#define DEBUG_PRINT_ln(...) do{Serial.println(__VA_ARGS__);Serial.flush();}while(0)
-#define DEBUG_PRINT(...)    do{Serial.print(__VA_ARGS__);Serial.flush();}while(0)
+//#define DEBUG_PRINT_ln(...) do{Serial.println(__VA_ARGS__);Serial.flush();}while(0)
+//#define DEBUG_PRINT(...)    do{Serial.print(__VA_ARGS__);Serial.flush();}while(0)
+#define DEBUG_PRINT_ln(...) do{Serial.println(__VA_ARGS__);}while(0)
+#define DEBUG_PRINT(...)    do{Serial.print(__VA_ARGS__);}while(0)
 #else
 #define DEBUG_PRINT_ln(...)
 #define DEBUG_PRINT(...)

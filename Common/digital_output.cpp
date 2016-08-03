@@ -5,13 +5,16 @@
  *      Author: goulou
  */
 
-#include <stdint.h>
-#include <MySensor.h>
+#include "digital_output.hpp"
 
-#include "relay_node.hpp"
+#include <Arduino.h>
+#include <stdint.h>
+
 #include "serial.hpp"
 
+#ifndef MAX_RELAY_COUNT
 #define MAX_RELAY_COUNT 32
+#endif
 #define BAD_ID	0xFF
 #define BAD_PIN	0xFF
 uint8_t relay_count;
@@ -20,7 +23,6 @@ uint8_t relay_pins[MAX_RELAY_COUNT];
 uint8_t relay_on_state;
 uint8_t relay_off_state;
 
-void present_relays(MySensor& gw);
 uint8_t get_state_for_value(uint8_t id, uint8_t value);
 
 
@@ -50,11 +52,12 @@ uint8_t get_relay_pin_for_id(uint8_t id)
 	return BAD_ID;
 }
 
-void setup_relay(MySensor& gw, const uint8_t* pins, const uint8_t* ids, uint8_t count, uint8_t on_state, uint8_t off_state, boolean present)
+void setup_digital_output(const uint8_t* pins, const uint8_t* ids, uint8_t count, uint8_t on_state, uint8_t off_state, boolean present)
 {
+	wdt_reset();
 	if(count > MAX_RELAY_COUNT)
 	{
-		Serial.println("TOO MANY RELAYS");
+		Serial.println(F("TOO MANY RELAYS"));
 		return;
 	}
 	relay_count = count;
@@ -65,40 +68,45 @@ void setup_relay(MySensor& gw, const uint8_t* pins, const uint8_t* ids, uint8_t 
 	{
 		relay_ids[i] = pgm_read_byte(&ids[i]);
 		relay_pins[i] = pgm_read_byte(&pins[i]);
+		int sensor = relay_ids[i];
+		int pin = relay_pins[i];
+		bool value = loadState(sensor);
+		uint8_t state = get_state_for_value(sensor, value);
+		// Then set relay pins in output mode
+		pinMode(pin, OUTPUT);
+		// Set relay to last known state (using eeprom storage)
+		digitalWrite(pin, state);
 	}
 
 
 	if(present)
 	{
-		present_relays(gw);
+		present_digital_output();
 	}
 }
 
-void present_relays(MySensor& gw)
+void present_digital_output()
 {
+	wdt_reset();
 	for(int i=0; i<relay_count; i++)
 	{
 		int sensor = relay_ids[i];
-		int pin = relay_pins[i];
-		bool value = gw.loadState(sensor);
-		uint8_t state = get_state_for_value(sensor, value);
-		Serial.print("Presenting relay ");
+		bool value = loadState(sensor);
+		Serial.print(F("Presenting relay "));
 		Serial.println(sensor);
 		// Register all sensors to gw (they will be created as child devices)
-		gw.present(sensor, V_LIGHT);
-		// Then set relay pins in output mode
-		pinMode(pin, OUTPUT);
-		// Set relay to last known state (using eeprom storage)
-		digitalWrite(pin, state);
+		present(sensor, V_LIGHT, "relay", false);
 		// Change to V_LIGHT if you use S_LIGHT in presentation below
 		MyMessage msg(sensor, V_TRIPPED);
-		gw.send(msg.set(value));
+		send(msg.set(value));
+		wdt_reset();
 	}
 
-	loop_relays(gw);
+	loop_digital_output();
+	wdt_reset();
 }
 
-boolean loop_relays(MySensor& gw)
+boolean loop_digital_output()
 {
 
 	return true;
@@ -109,7 +117,7 @@ uint8_t get_state_for_value(uint8_t id, uint8_t value)
 	return value?relay_on_state : relay_off_state;
 }
 
-boolean incoming_message_relay(MySensor& gw, const MyMessage &message)
+boolean incoming_message_digital_output(const MyMessage &message)
 {
 	uint8_t id = message.sensor;
 	int pin = get_relay_pin_for_id(id);
@@ -122,15 +130,15 @@ boolean incoming_message_relay(MySensor& gw, const MyMessage &message)
 	uint8_t state = get_state_for_value(id, value);
 	digitalWrite(pin, state);
 	// Store state in eeprom
-	gw.saveState(message.sensor, state);
+	saveState(message.sensor, state);
 	// Write some debug info
-	Serial.print("Incoming change for Relay:");
+	Serial.print(F("Incoming change for Relay:"));
 	Serial.print(message.sensor);
-	Serial.print(" on pin ");
+	Serial.print(F(" on pin "));
 	Serial.print(pin);
-	Serial.print(", New status value=");
+	Serial.print(F(", New status value="));
 	Serial.print(value);
-	Serial.print(":");
+	Serial.print(F(":"));
 	Serial.print(state);
 	Serial.println();
 

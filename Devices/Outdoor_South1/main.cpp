@@ -1,272 +1,128 @@
 // Example sketch showing how to send in OneWire temperature readings
 #include <MySensor.h>
-#include <Wire.h>
-#include <Adafruit_BMP085.h>
+#include <SPI.h>
 
 #include <eeprom_reset.hpp>
 #include <1w_node.hpp>
 #include <dht_node.hpp>
 #include <battery_monitored_node.hpp>
+#include <si7021_node.hpp>
+#include <digital_input.hpp>
 #include <serial.hpp>
+#include "../../Common/digital_output.hpp"
 
 MySensor gw;
 unsigned long SLEEP_TIME = 60000; // Sleep time between reads (in milliseconds)
 
-#define BATTERY_SENSE_PIN  			A0
+#define BATTERY_SENSE_PIN  A0
 
-#define RAIN_SENSOR_DIGITAL_PIN 	A3
-#define RAIN_SENSOR_ANALOG_PIN 		A2
-#define RAIN_CHILD_ID				16
-MyMessage RainMsg(RAIN_CHILD_ID, V_RAIN);
+#define NUMBER_OF_DIGITAL_SENSORS 3 // Total number of attached motion sensors
+const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {3, 8, A1};
+const uint8_t input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66};
+const mysensor_sensor input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {S_BINARY, S_BINARY, S_BINARY};
 
-#define BARO_CHILD_ID				130
-Adafruit_BMP085 bmp = Adafruit_BMP085();      // Digital Pressure Sensor
-float lastPressure = -1;
-int lastForecast = -1;
-const char *weather[] =
-{ "stable", "sunny", "cloudy", "unstable", "thunderstorm", "unknown" };
-int minutes;
-float pressureSamples[45];
-int minuteCount = 0;
-bool firstRound = true;
-float pressureAvg[7];
-float dP_dt;
-int compute_forecast(float pressure);
-MyMessage pressureMsg(BARO_CHILD_ID, V_PRESSURE);
-MyMessage forecastMsg(BARO_CHILD_ID, V_FORECAST);
+/**
+ * My Sensors
+ */
+#define NUMBER_OF_RELAYS 2 // Total number of attached relays
+const uint8_t relay_pins[NUMBER_OF_RELAYS] PROGMEM = {7, A3};
+const uint8_t relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17};
+#define RELAY_ON 0  // GPIO value to write to turn on attached relay
+#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
 
-boolean bmp_present = false;
+
+void incomingMessage(const MyMessage &message);
+
 void setup()
 {
 	Serial.begin(BAUD_RATE);
-	int i = 0;
-	DEBUG_PRINT_ln("launched");
 	setup_serial();
+	Serial.println("launched");
 
-//	eeprom_reset_check(3);
+	//IO PIN 5
+	eeprom_reset_check(4);
+	wdt_reset();
 
-	DEBUG_PRINT_ln("begin");
-	Serial.flush();
-	DEBUG_PRINT_ln("launched");
-	while (!bmp.begin(BMP085_ULTRALOWPOWER) && i<5)
-	{
-		DEBUG_PRINT_ln("Could not find a valid BMP085 sensor, check wiring!");
-		delay(500);
-		i++;
-		DEBUG_PRINT_ln("retrying");
-
-	}
-
-	if(i<5)
-	{
-		bmp_present = true;
-	}
-
-	if(bmp_present)
-	{
-		float pressure = bmp.readSealevelPressure(81) / 100; // 205 meters above sealevel
-		int forecast = compute_forecast(pressure);
-
-		DEBUG_PRINT("Pressure = ");
-		DEBUG_PRINT(pressure);
-		DEBUG_PRINT_ln(" Pa");
-		DEBUG_PRINT_ln(weather[forecast]);
-	}
-
-	DEBUG_PRINT_ln("Setup DHT");
-	setup_dht(gw, 7, 10, false);
+	setup_relay(gw, relay_pins, relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
+	setup_digital_input(gw, input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, true, input_types);
+	setup_si7021(gw, 3, false, false);
 
 	// Startup and initialize MySensors library. Set callback for incoming messages.
-	gw.begin(NULL, 68);
-//	DEBUG_PRINT_ln("setPALevel");
-//	gw.setPALevel(RF24_PA_MAX);
+	gw.begin(incomingMessage, 0x9, false, hw_readConfig(EEPROM_PARENT_NODE_ID_ADDRESS));
+	wdt_reset();
 
 	// Send the sketch version information to the gateway and Controller
-	DEBUG_PRINT_ln("sendSketchInfo");
 	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
+	wdt_reset();
 
-	// Startup DHT
-	present_dht(gw);
+	present_si7021(gw);
+	present_relays(gw);
+	present_digital_inputs(gw);
 
-	gw.present(RAIN_CHILD_ID, S_RAIN);
+	wdt_reset();
+	loop_si7021(gw);
+//	loop_onewire(gw);
 
-	if(bmp_present)
-	{
-		pinMode(RAIN_SENSOR_DIGITAL_PIN, INPUT);
 
-		gw.present(BARO_CHILD_ID, S_BARO);
-	}
-
-	battery_monitored_node_setup(gw, BATTERY_SENSE_PIN);
 }
 
-int lastRainValue = -1;
-
+uint32_t count = 0;
 void loop()
 {
 	// Process incoming messages (like config from server)
-	gw.process();
-
-	loop_dht(gw);
-
-	int rainValue = digitalRead(RAIN_SENSOR_DIGITAL_PIN); // 1 = Not triggered, 0 = In soil with water
-	if (rainValue != lastRainValue)
+//	gw.process();
+//	loop_si7021(gw);
+//	battery_monitored_node_loop(gw);
+//	if(count > 120)
 	{
-		DEBUG_PRINT("Rain status : ");
-		DEBUG_PRINT_ln(rainValue);
-		gw.send(RainMsg.set(rainValue == 0 ? 1 : 0)); // Send the inverse to gw as tripped should be when no water in soil
-		lastRainValue = rainValue;
+		loop_si7021(gw);
+		Serial.print("2");
+		battery_monitored_node_loop(gw);
+//		count = 0;
 	}
-
-	if(bmp_present)
+//	count ++;
+	loop_digital_inputs(gw);
+	wdt_reset();
+	Serial.println("Sl");
+	wdt_disable();
+	while(gw.sleep(1, digitalRead(input_pins[0])==LOW?RISING:FALLING, SLEEP_TIME) == true)
 	{
-
-
-
-		/**************************************************/
-		/***********    Compute forecast    ***************/
-		/**************************************************/
-
-		float pressure = bmp.readSealevelPressure(81) / 100; // 205 meters above sealevel
-		int forecast = compute_forecast(pressure);
-
-		DEBUG_PRINT("Pressure = ");
-		DEBUG_PRINT(pressure);
-		DEBUG_PRINT_ln(" Pa");
-		DEBUG_PRINT_ln(weather[forecast]);
-
-	//	if (pressure != lastPressure)
+		wdt_reset();
+		wdt_enable(WDTO_8S);
+		wdt_reset();
+//		Serial.begin(BAUD_RATE);
+		Serial.println("IT");
+		while(loop_digital_inputs(gw))
 		{
-			gw.send(pressureMsg.set(pressure, 0));
-			lastPressure = pressure;
+			Serial.print("r");
 		}
-
-	//	if (forecast != lastForecast)
-		{
-			gw.send(forecastMsg.set(weather[forecast]));
-			lastForecast = forecast;
-		}
-
-		/*
-		 DP/Dt explanation
-
-		 0 = "Stable Weather Pattern"
-		 1 = "Slowly rising Good Weather", "Clear/Sunny "
-		 2 = "Slowly falling L-Pressure ", "Cloudy/Rain "
-		 3 = "Quickly rising H-Press",     "Not Stable"
-		 4 = "Quickly falling L-Press",    "Thunderstorm"
-		 5 = "Unknown (More Time needed)
-		 */
+		Serial.println("Sl");
+		wdt_reset();
+		loop_si7021(gw);
+		wdt_reset();
+		wdt_disable();
 	}
-
-	battery_monitored_node_loop(gw);
-
-	gw.sleep(SLEEP_TIME);
+	Serial.println("Up");
+	wdt_reset();
 }
 
-float get_pressure_sample(int idx)
+
+
+void incomingMessage(const MyMessage &message)
 {
-	return pressureSamples[idx/4];
-}
-
-int compute_forecast(float pressure)
-{
-	// Algorithm found here
-	// http://www.freescale.com/files/sensors/doc/app_note/AN3914.pdf
-	if (minuteCount == 180)
-		minuteCount = 5;
-
-	pressureSamples[minuteCount/4] = pressure;
-	minuteCount++;
-
-	if (minuteCount == 5)
+	wdt_reset();
+	// We only expect one type of message from controller. But we better check anyway.
+	if (incoming_message_relay(gw, message))
 	{
-		// Avg pressure in first 5 min, value averaged from 0 to 5 min.
-		pressureAvg[0] = ((get_pressure_sample(0) + get_pressure_sample(1) + get_pressure_sample(2) + get_pressure_sample(3)
-				+ get_pressure_sample(4)) / 5);
+		Serial.println("Incomming msg was for relay");
 	}
-	else if (minuteCount == 35)
-	{
-		// Avg pressure in 30 min, value averaged from 0 to 5 min.
-		pressureAvg[1] = ((get_pressure_sample(30) + get_pressure_sample(31) + get_pressure_sample(32) + get_pressure_sample(33)
-				+ get_pressure_sample(34)) / 5);
-		float change = (pressureAvg[1] - pressureAvg[0]);
-		if (firstRound) // first time initial 3 hour
-			dP_dt = ((65.0 / 1023.0) * 2 * change); // note this is for t = 0.5hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 1.5); // divide by 1.5 as this is the difference in time from 0 value.
-	}
-	else if (minuteCount == 60)
-	{
-		// Avg pressure at end of the hour, value averaged from 0 to 5 min.
-		pressureAvg[2] = ((get_pressure_sample(55) + get_pressure_sample(56) + get_pressure_sample(57) + get_pressure_sample(58)
-				+ get_pressure_sample(59)) / 5);
-		float change = (pressureAvg[2] - pressureAvg[0]);
-		if (firstRound) //first time initial 3 hour
-			dP_dt = ((65.0 / 1023.0) * change); //note this is for t = 1 hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 2); //divide by 2 as this is the difference in time from 0 value
-	}
-	else if (minuteCount == 95)
-	{
-		// Avg pressure at end of the hour, value averaged from 0 to 5 min.
-		pressureAvg[3] = ((get_pressure_sample(90) + get_pressure_sample(91) + get_pressure_sample(92) + get_pressure_sample(93)
-				+ get_pressure_sample(94)) / 5);
-		float change = (pressureAvg[3] - pressureAvg[0]);
-		if (firstRound) // first time initial 3 hour
-			dP_dt = (((65.0 / 1023.0) * change) / 1.5); // note this is for t = 1.5 hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 2.5); // divide by 2.5 as this is the difference in time from 0 value
-	}
-	else if (minuteCount == 120)
-	{
-		// Avg pressure at end of the hour, value averaged from 0 to 5 min.
-		pressureAvg[4] = ((get_pressure_sample(115) + get_pressure_sample(116) + get_pressure_sample(117) + get_pressure_sample(118)
-				+ get_pressure_sample(119)) / 5);
-		float change = (pressureAvg[4] - pressureAvg[0]);
-		if (firstRound) // first time initial 3 hour
-			dP_dt = (((65.0 / 1023.0) * change) / 2); // note this is for t = 2 hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 3); // divide by 3 as this is the difference in time from 0 value
-	}
-	else if (minuteCount == 155)
-	{
-		// Avg pressure at end of the hour, value averaged from 0 to 5 min.
-		pressureAvg[5] = ((get_pressure_sample(150) + get_pressure_sample(151) + get_pressure_sample(152) + get_pressure_sample(153)
-				+ get_pressure_sample(154)) / 5);
-		float change = (pressureAvg[5] - pressureAvg[0]);
-		if (firstRound) // first time initial 3 hour
-			dP_dt = (((65.0 / 1023.0) * change) / 2.5); // note this is for t = 2.5 hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 3.5); // divide by 3.5 as this is the difference in time from 0 value
-	}
-	else if (minuteCount == 180)
-	{
-		// Avg pressure at end of the hour, value averaged from 0 to 5 min.
-		pressureAvg[6] = ((get_pressure_sample(175) + get_pressure_sample(176) + get_pressure_sample(177) + get_pressure_sample(178)
-				+ get_pressure_sample(179)) / 5);
-		float change = (pressureAvg[6] - pressureAvg[0]);
-		if (firstRound) // first time initial 3 hour
-			dP_dt = (((65.0 / 1023.0) * change) / 3); // note this is for t = 3 hour
-		else
-			dP_dt = (((65.0 / 1023.0) * change) / 4); // divide by 4 as this is the difference in time from 0 value
-		pressureAvg[0] = pressureAvg[5]; // Equating the pressure at 0 to the pressure at 2 hour after 3 hours have past.
-		firstRound = false; // flag to let you know that this is on the past 3 hour mark. Initialized to 0 outside main loop.
-	}
-
-	if (minuteCount < 35 && firstRound) //if time is less than 35 min on the first 3 hour interval.
-		return 5; // Unknown, more time needed
-	else if (dP_dt < (-0.25))
-		return 4; // Quickly falling LP, Thunderstorm, not stable
-	else if (dP_dt > 0.25)
-		return 3; // Quickly rising HP, not stable weather
-	else if ((dP_dt > (-0.25)) && (dP_dt < (-0.05)))
-		return 2; // Slowly falling Low Pressure System, stable rainy weather
-	else if ((dP_dt > 0.05) && (dP_dt < 0.25))
-		return 1; // Slowly rising HP stable good weather
-	else if ((dP_dt > (-0.05)) && (dP_dt < 0.05))
-		return 0; // Stable weather
 	else
-		return 5; // Unknown
+	{
+		Serial.print("unknown message type : ");
+		Serial.print(message.type);
+		Serial.print(" -- ");
+		Serial.print(message.sensor);
+		Serial.print(", New status: ");
+		Serial.println(message.getBool());
+	}
 }
-
