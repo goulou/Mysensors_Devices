@@ -111,8 +111,8 @@ void present_digital_inputs()
 	{
 		int sensor = digital_input_ids[i];
 		int pin = digital_input_pins[i];
-		Serial.print(F("Presenting digital input "));
-		Serial.println(sensor);
+		DEBUG_PRINT(F("Presenting digital input "));
+		DEBUG_PRINT_ln(sensor);
 		present(sensor, S_MOTION);
 		pinMode(pin, INPUT);
 		digital_input_values[i] = digitalRead(pin);
@@ -141,17 +141,17 @@ boolean loop_digital_inputs()
 	{
 		last_read = millis();
 	}
+	sleep(5);
 #endif
 	//wait that the buttons are settled
-	sleep(5);
 	for(int i=0; i<digital_input_count; i++)
 	{
 		wdt_reset();
 		int sensor = digital_input_ids[i];
 		int pin = digital_input_pins[i];
-		Serial.print("c");
+//		Serial.print("c");
 		int value = digitalRead(pin);
-		Serial.println("d");
+//		Serial.println("d");
 #ifdef DIGITAL_INPUT_NO_DEBOUNCE
 		if(value != digital_input_values[i])
 		{
@@ -183,7 +183,7 @@ boolean loop_digital_inputs()
 		{
 			retval = true;
 			MyMessage msg(sensor, V_TRIPPED);
-			Serial.println("send");
+//			Serial.println("send");
 			wdt_reset();
 			msg.set(value);
 			send(msg);

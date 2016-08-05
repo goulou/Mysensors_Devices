@@ -92,8 +92,8 @@ void present_digital_output()
 	{
 		int sensor = relay_ids[i];
 		bool value = loadState(sensor);
-		Serial.print(F("Presenting relay "));
-		Serial.println(sensor);
+		DEBUG_PRINT(F("Presenting relay "));
+		DEBUG_PRINT_ln(sensor);
 		// Register all sensors to gw (they will be created as child devices)
 		present(sensor, V_LIGHT, "relay", false);
 		// Change to V_LIGHT if you use S_LIGHT in presentation below
@@ -132,15 +132,15 @@ boolean incoming_message_digital_output(const MyMessage &message)
 	// Store state in eeprom
 	saveState(message.sensor, state);
 	// Write some debug info
-	Serial.print(F("Incoming change for Relay:"));
-	Serial.print(message.sensor);
-	Serial.print(F(" on pin "));
-	Serial.print(pin);
-	Serial.print(F(", New status value="));
-	Serial.print(value);
-	Serial.print(F(":"));
-	Serial.print(state);
-	Serial.println();
+	DEBUG_PRINT(F("Incoming change for Relay:"));
+	DEBUG_PRINT(message.sensor);
+	DEBUG_PRINT(F(" on pin "));
+	DEBUG_PRINT(pin);
+	DEBUG_PRINT(F(", New status value="));
+	DEBUG_PRINT(value);
+	DEBUG_PRINT(F(":"));
+	DEBUG_PRINT(state);
+	DEBUG_PRINT_ln();
 
 
 	return true;
