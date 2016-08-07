@@ -13,3 +13,6 @@
 [submodule "OneWire"]
 	path = libraries/OneWire
 	url = git@github.com:goulou/OneWire.git
+[submodule "libraries/DallasTemperature"]
+	path = libraries/DallasTemperature
+	url = git@github.com:goulou/Arduino-Temperature-Control-Library.git
