@@ -75,7 +75,7 @@ uint8_t get_digital_input_pin_for_id(uint8_t id)
 	return BAD_ID;
 }
 
-void setup_digital_input(const uint8_t* pins, const uint8_t* ids, uint8_t count, boolean present, boolean p_safe_send, const mysensor_sensor* types)
+void setup_digital_input(const uint8_t* pins, const uint8_t* ids, uint8_t count, boolean present, boolean p_safe_send, const mysensor_sensor* types, boolean pullupmode)
 {
 	wdt_reset();
 	if(count > MAX_DIGITAL_INPUT)
@@ -94,7 +94,14 @@ void setup_digital_input(const uint8_t* pins, const uint8_t* ids, uint8_t count,
 
 //		int sensor = digital_input_ids[i];
 		int pin = digital_input_pins[i];
-		pinMode(pin, INPUT);
+		if(pullupmode)
+		{
+			pinMode(pin, INPUT_PULLUP);
+		}
+		else
+		{
+			pinMode(pin, INPUT);
+		}
 	}
 
 
