@@ -10,3 +10,6 @@
 [submodule "libraries/SI7021"]
 	path = libraries/SI7021
 	url = git@github.com:goulou/SI7021.git
+[submodule "OneWire"]
+	path = libraries/OneWire
+	url = git@github.com:goulou/OneWire.git
