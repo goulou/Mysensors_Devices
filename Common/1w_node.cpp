@@ -8,7 +8,6 @@
 
 
 
-#include <MySensor.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -34,7 +33,7 @@ int numDallasSensors = 0;
 // Initialize temperature message
 MyMessage RainMsg(0, V_TEMP);
 
-void setup_onewire(MySensor& gw, bool present)
+void setup_onewire(bool present)
 {
 	wdt_reset();
 	// Startup OneWire
@@ -51,25 +50,25 @@ void setup_onewire(MySensor& gw, bool present)
 	DEBUG_PRINT_ln(ONE_WIRE_BUS);
 
 	if(present){
-		present_onewire(gw);
+		present_onewire();
 	}
 
 	wdt_reset();
 }
 
-void present_onewire(MySensor& gw)
+void present_onewire()
 {
 	wdt_reset();
 	// Present all sensors to controller
 	int i = 0;
 	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
-		gw.present(i, S_TEMP);
+		present(i, S_TEMP);
 		wdt_reset();
 	}
 }
 
-void loop_onewire(MySensor& gw)
+void loop_onewire()
 {
 	wdt_reset();
 	// Fetch temperatures from Dallas sensors
@@ -81,7 +80,7 @@ void loop_onewire(MySensor& gw)
 
 		// Fetch and round temperature to one decimal
 		float temperature = static_cast<float>(static_cast<int>((
-				gw.getConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
+				getConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
 
 		// Only send data if temperature has changed and no error
 		if (abs(lastTemperature[i] - temperature) > MIN_TEMPERATURE_DELTA && temperature != -127.00)
@@ -89,7 +88,7 @@ void loop_onewire(MySensor& gw)
 			Serial.print("sending temperature for device ");
 			Serial.println(i);
 			// Send in the new temperature
-			gw.send(RainMsg.setSensor(i).set(temperature, 1));
+			send(RainMsg.setSensor(i).set(temperature, 1));
 			lastTemperature[i] = temperature;
 		}
 	}

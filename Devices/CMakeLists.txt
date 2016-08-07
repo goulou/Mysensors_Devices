@@ -21,4 +21,5 @@ add_subdirectory(DigitalIONode Basement2_0x1B)
 #add_subdirectory(AtticNorth/)
 add_subdirectory(SingleITSensor LivingRoomDoor1_0x06)
 add_subdirectory(DualITSensor GardenWater_0x1D)
+add_subdirectory(OneWireTemperatureSensor Kitchen1_0xA2)
 #

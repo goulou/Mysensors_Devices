@@ -5,9 +5,11 @@
  *      Author: goulou
  */
 
+#pragma once
 
 
+void setup_onewire(bool present=false);
+void present_onewire();
+void loop_onewire();
 
-void setup_onewire(MySensor& gw, bool present=false);
-void present_onewire(MySensor& gw);
-void loop_onewire(MySensor& gw);
+#include "1w_node.cpp"
