@@ -21,7 +21,7 @@
 #include "serial.hpp"
 
 #ifndef DIGITAL_INPUT_READ_DELAY_MS
-#define DIGITAL_INPUT_READ_DELAY_MS	10
+#define DIGITAL_INPUT_READ_DELAY_MS	0
 #endif
 
 #ifndef MAX_DIGITAL_INPUT
@@ -42,7 +42,7 @@ unsigned long last_read;
 
 //we need to define debounce time
 #ifndef DIGITAL_INPUT_MIN_CHANGE_TIME_MS
-#define DIGITAL_INPUT_MIN_CHANGE_TIME_MS 100
+#define DIGITAL_INPUT_MIN_CHANGE_TIME_MS 10
 #endif //DIGITAL_INPUT_MIN_CHANGE_TIME_MS
 
 #endif //DIGITAL_INPUT_NO_DEBOUNCE
@@ -80,7 +80,10 @@ void setup_digital_input(const uint8_t* pins, const uint8_t* ids, uint8_t count,
 	wdt_reset();
 	if(count > MAX_DIGITAL_INPUT)
 	{
-		Serial.println(F("TOO MANY DIGITAL INPUT"));
+		Serial.println(F("TOO MANY DIGITAL INPUT : "));
+		Serial.print(count);
+		Serial.print(F(" > "));
+		Serial.println(MAX_DIGITAL_INPUT);
 		return;
 	}
 	digital_input_count = count;
@@ -117,21 +120,15 @@ void present_digital_inputs()
 	for(int i=0; i<digital_input_count; i++)
 	{
 		int sensor = digital_input_ids[i];
-		int pin = digital_input_pins[i];
 		DEBUG_PRINT(F("Presenting digital input "));
 		DEBUG_PRINT_ln(sensor);
 		present(sensor, S_MOTION);
-		pinMode(pin, INPUT);
-		digital_input_values[i] = digitalRead(pin);
-		MyMessage msg(sensor, V_TRIPPED);
-		send(msg.set(digital_input_values[i]));
 		wdt_reset();
 	}
 
 #ifndef DIGITAL_INPUT_NO_DEBOUNCE
-	last_read = millis();
+	last_read = millis() - (DIGITAL_INPUT_READ_DELAY_MS+1);
 #endif
-	loop_digital_inputs();
 	wdt_reset();
 }
 
@@ -148,7 +145,7 @@ boolean loop_digital_inputs()
 	{
 		last_read = millis();
 	}
-	sleep(5);
+	if(safe_send) sleep(5);
 #endif
 	//wait that the buttons are settled
 	for(int i=0; i<digital_input_count; i++)
@@ -165,19 +162,28 @@ boolean loop_digital_inputs()
 			retval = true;
 			Serial.print("IO:");
 			Serial.println(value);
-			wait(500);
-			Serial.print("e");
-			MyMessage msg(sensor, V_TRIPPED);
-			send(msg.set(value));
 			if(safe_send)
 			{
-				wait(200);
-				Serial.print("f");
+				wait(500);
+				Serial.print("e");
+				MyMessage msg(sensor, V_TRIPPED);
 				send(msg.set(value));
-				wait(200);
-				Serial.print("g");
+				if(safe_send)
+				{
+					wait(200);
+					Serial.print("f");
+					send(msg.set(value));
+					wait(200);
+					Serial.print("g");
+					send(msg.set(value));
+				}
+			}
+			else
+			{
+				MyMessage msg(sensor, V_TRIPPED);
 				send(msg.set(value));
 			}
+
 			digital_input_values[i] = value;
 			Serial.print("h");
 		}
@@ -203,7 +209,7 @@ boolean loop_digital_inputs()
 				wdt_reset();
 				send(msg);
 			}
-			wait(100);
+//			wait(100);
 			digital_input_values[i] = value;
 			digital_input_last_change_time[i] = millis();
 		}

@@ -70,8 +70,7 @@ void setup_digital_output(const uint8_t* pins, const uint8_t* ids, uint8_t count
 		relay_pins[i] = pgm_read_byte(&pins[i]);
 		int sensor = relay_ids[i];
 		int pin = relay_pins[i];
-		bool value = loadState(sensor);
-		uint8_t state = get_state_for_value(sensor, value);
+		uint8_t state = loadState(sensor);
 		// Then set relay pins in output mode
 		pinMode(pin, OUTPUT);
 		// Set relay to last known state (using eeprom storage)
@@ -91,24 +90,17 @@ void present_digital_output()
 	for(int i=0; i<relay_count; i++)
 	{
 		int sensor = relay_ids[i];
-		bool value = loadState(sensor);
 		DEBUG_PRINT(F("Presenting relay "));
 		DEBUG_PRINT_ln(sensor);
 		// Register all sensors to gw (they will be created as child devices)
-		present(sensor, V_LIGHT, "relay", false);
-		// Change to V_LIGHT if you use S_LIGHT in presentation below
-		MyMessage msg(sensor, V_TRIPPED);
-		send(msg.set(value));
+		present(sensor, S_BINARY, "relay", false);
 		wdt_reset();
 	}
 
-	loop_digital_output();
-	wdt_reset();
 }
 
 boolean loop_digital_output()
 {
-
 	return true;
 }
 
