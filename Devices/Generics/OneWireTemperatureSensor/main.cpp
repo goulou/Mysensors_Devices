@@ -25,6 +25,7 @@
 #include <eeprom_reset.hpp>
 #include <battery_monitored_node.hpp>
 #include <1w_node.hpp>
+#include <dht_node.hpp>
 unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds)
 
 #define BATTERY_SENSE_PIN  A0
@@ -41,6 +42,7 @@ void setup()
 
 	eeprom_reset_check(4);
 	setup_onewire();
+	setup_dht_device(PD7, 5, false);
 	wdt_reset();
 }
 
@@ -53,17 +55,21 @@ void presentation() {
   // If S_LIGHT is used, remember to update variable type you send in. See "msg" above.
 	battery_monitored_node_setup(BATTERY_SENSE_PIN);
 	present_onewire();
+	present_dht_device();
 }
 
+unsigned long last_update = 0;
 void loop()
 {
 	// Process incoming messages (like config from server)
-	loop_onewire();
-	battery_monitored_node_loop();
+	if((millis() - last_update) > SLEEP_TIME || last_update == 0)
+	{
+		loop_onewire();
+		loop_dht_device();
+		battery_monitored_node_loop();
+		last_update = millis();
+	}
 
-	wdt_disable();
-	sleep(SLEEP_TIME);
-	wdt_enable(WDTO_8S);
 	wdt_reset();
 }
 
