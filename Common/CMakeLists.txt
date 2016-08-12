@@ -19,6 +19,7 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME} Arduino_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} Arduino_SI7021_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} Arduino_EEPROM_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Arduino_DHT_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} MySensors_${DEVICE_NAME})
 
 #target_link_libraries(${PROJECT_NAME} MySensors_DHT_${DEVICE_NAME})

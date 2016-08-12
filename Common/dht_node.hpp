@@ -10,9 +10,11 @@
 
 
 
-void setup_dht(MySensor& gw, uint8_t pin, int max_try, boolean present=true);
-void present_dht(MySensor& gw);
-boolean loop_dht(MySensor& gw);
+void setup_dht_device(uint8_t pin, int max_try, boolean present=true);
+void present_dht_device();
+boolean loop_dht_device();
 float dht_get_last_temp();
+
+#include "dht_node.cpp"
 
 #endif /* COMMON_DHT_NODE_HPP_ */
