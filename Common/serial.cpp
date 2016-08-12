@@ -29,7 +29,7 @@ int freeRam () {
 
 void setup_serial(bool enable_watchdog)
 {
-	while(Serial.available()) Serial.read();
+
 	fdevopen( &serial_putc, 0 );
 	if(enable_watchdog)
 	{
