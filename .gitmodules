@@ -16,3 +16,9 @@
 [submodule "libraries/DallasTemperature"]
 	path = libraries/DallasTemperature
 	url = git@github.com:goulou/Arduino-Temperature-Control-Library.git
+[submodule "libraries/Arduino-DHT"]
+	path = libraries/Arduino-DHT
+	url = git@github.com:goulou/Arduino-DHT.git
+[submodule "libraries/Arduino-Libs"]
+	path = libraries/Arduino-Libs
+	url = git@github.com:goulou/Arduino-Libs.git
