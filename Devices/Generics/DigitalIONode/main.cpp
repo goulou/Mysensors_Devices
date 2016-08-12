@@ -22,6 +22,8 @@
 #define DEBUG
 #include <serial.hpp>
 
+#include <default_mapping.hpp>
+
 #include <eeprom_reset.hpp>
 #include <battery_monitored_node.hpp>
 #include <si7021_node.hpp>
@@ -36,11 +38,11 @@
  * My Sensors
  */
 #define NUMBER_OF_RELAYS 4 // Total number of attached relays
-const uint8_t output_pins[NUMBER_OF_RELAYS] PROGMEM = {7, 5, A3, A2};
+const uint8_t output_pins[NUMBER_OF_RELAYS] PROGMEM = {OUTPUT_PINS_DEFAULT};
 const uint8_t output_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18, 19};
 
 #define NUMBER_OF_DIGITAL_SENSORS 4 // Total number of attached motion sensors
-const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {3, 6, 8, A1};
+const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_DEFAULT};
 const uint8_t input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66, 67};
 const mysensor_sensor input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {S_DOOR, S_MOTION, S_MOTION, S_MOTION};
 #define RELAY_ON 0  // GPIO value to write to turn on attached relay
