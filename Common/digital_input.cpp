@@ -42,7 +42,7 @@ unsigned long last_read;
 
 //we need to define debounce time
 #ifndef DIGITAL_INPUT_MIN_CHANGE_TIME_MS
-#define DIGITAL_INPUT_MIN_CHANGE_TIME_MS 10
+#define DIGITAL_INPUT_MIN_CHANGE_TIME_MS 100
 #endif //DIGITAL_INPUT_MIN_CHANGE_TIME_MS
 
 #endif //DIGITAL_INPUT_NO_DEBOUNCE
