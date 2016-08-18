@@ -62,7 +62,7 @@ void setup()
 	eeprom_reset_check(4);
 	setup_si7021(5, false, true);
 	setup_digital_output(output_pins, output_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, true, input_types);
+	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, false, input_types);
 	wdt_reset();
 
 	wdt_enable(WDTO_8S);
