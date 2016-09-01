@@ -1,9 +1,8 @@
-# Project name
-get_filename_component(DEVICE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-project(${DEVICE_NAME})
-
 # CMake version
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
+
+# Project name
+setup_mysensor_project(${CMAKE_CURRENT_BINARY_DIR})
 
 #Set this variable to "avr" or "sam"
 set(MCU "atmega328p")
