@@ -13,7 +13,7 @@ add_subdirectory(Utils/EEPROM_Clear_16Mhz/)
 add_subdirectory(Utils/EEPROM_Clear_1Mhz/)
 add_subdirectory(Utils/EEPROM_Clear_Mega2560/)
 #add_subdirectory(Basement1/) //0x1D
-add_subdirectory(Generics/DigitalIONode Basement1_0x1D_BOARDV1)
+add_subdirectory(Generics/OneWireTemperatureSensor Basement1_0x1F_BOARDV2) #also takes 0x20
 add_subdirectory(Generics/DigitalIONode Basement2_0x1E_BOARDV2)
 add_subdirectory(Generics/DigitalIONode AtticNorth_0x02)
 add_subdirectory(Generics/DigitalIOMega AtticSouth_0x45)
@@ -25,6 +25,6 @@ add_subdirectory(Generics/DigitalIOMega HeatingControl_0x13)
 #add_subdirectory(AtticSouth1/)
 #add_subdirectory(AtticNorth/)
 add_subdirectory(Generics/SingleITSensor LivingRoomDoor1_0x06)
-add_subdirectory(Generics/DualITSensor GardenWater_0x1D)
-add_subdirectory(Generics/OneWireTemperatureSensor Kitchen1_0xA2)
+add_subdirectory(Generics/DualITSensor GardenWater_0x1D_BOARDV2)
+add_subdirectory(Generics/OneWireTemperatureSensor Kitchen1_0xA2) #also takes 0xA3
 #
