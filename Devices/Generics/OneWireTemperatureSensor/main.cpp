@@ -22,14 +22,40 @@
 #define DEBUG
 #include <serial.hpp>
 
+#define WITH_ONEWIRE
+#include <default_mapping.hpp>
+
 #include <eeprom_reset.hpp>
 #include <battery_monitored_node.hpp>
+#include <si7021_node.hpp>
+
+#define BATTERY_SENSE_PIN  A0
+
+#include <digital_input.hpp>
+#include <digital_output.hpp>
+
 #include <1w_node.hpp>
-#include <dht_node.hpp>
+#ifdef DHT_PIN
+  #include <dht_node.hpp>
+#endif
 unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds)
 
 #define BATTERY_SENSE_PIN  A0
 
+
+/**
+ * My Sensors
+ */
+#define NUMBER_OF_RELAYS OUTPUT_PINS_COUNT // Total number of attached relays
+const uint8_t output_pins[NUMBER_OF_RELAYS] PROGMEM = {OUTPUT_PINS_DEFAULT};
+const uint8_t output_ids [NUMBER_OF_RELAYS] PROGMEM = {OUTPUT_PINS_IDS};
+
+#define NUMBER_OF_DIGITAL_SENSORS INPUT_PINS_COUNT // Total number of attached motion sensors
+const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_DEFAULT};
+const uint8_t input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_IDS};
+const mysensor_sensor input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_TYPES};
+#define RELAY_ON 0  // GPIO value to write to turn on attached relay
+#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
 
 
 void setup()
@@ -40,9 +66,15 @@ void setup()
 	Serial.println("launched");
 	wdt_reset();
 
-	eeprom_reset_check(4);
+	eeprom_reset_check(EEPROM_RESET_PIN);
 	setup_onewire();
+#ifdef DHT_PIN
 	setup_dht_device(PD7, 5, false);
+#endif
+	setup_si7021(5, false, true);
+	wdt_reset();
+	setup_digital_output(output_pins, output_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
+	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, false, input_types);
 	wdt_reset();
 }
 
@@ -55,17 +87,28 @@ void presentation() {
   // If S_LIGHT is used, remember to update variable type you send in. See "msg" above.
 	battery_monitored_node_setup(BATTERY_SENSE_PIN);
 	present_onewire();
+#ifdef DHT_PIN
 	present_dht_device();
+#endif
+	present_si7021();
+	present_digital_inputs();
+	present_digital_output();
 }
 
 unsigned long last_update = 0;
 void loop()
 {
+	loop_digital_output();
+	loop_digital_inputs();
+
 	// Process incoming messages (like config from server)
 	if((millis() - last_update) > SLEEP_TIME || last_update == 0)
 	{
 		loop_onewire();
+#ifdef DHT_PIN
 		loop_dht_device();
+#endif
+		loop_si7021();
 		battery_monitored_node_loop();
 		last_update = millis();
 	}
@@ -73,3 +116,24 @@ void loop()
 	wdt_reset();
 }
 
+
+void receive(const MyMessage &message)
+{
+	wdt_reset();
+	// We only expect one type of message from controller. But we better check anyway.
+	if (incoming_message_digital_output(message))
+	{
+		wdt_reset();
+		Serial.println(F("Incomming msg was for digital outputs"));
+	}
+	else
+	{
+		Serial.print(F("unknown message type : "));
+		Serial.print(message.type);
+		Serial.print(F(" -- "));
+		Serial.print(message.sensor);
+		Serial.print(F(", New status: "));
+		Serial.println(message.getBool());
+	}
+	wdt_reset();
+}
