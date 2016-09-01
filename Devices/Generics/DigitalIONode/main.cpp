@@ -59,7 +59,7 @@ void setup()
 	Serial.println("launched");
 	wdt_reset();
 
-	eeprom_reset_check(4);
+	eeprom_reset_check(EEPROM_RESET_PIN);
 	setup_si7021(5, false, true);
 	setup_digital_output(output_pins, output_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
 	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, false, input_types);
