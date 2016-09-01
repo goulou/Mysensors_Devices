@@ -22,3 +22,6 @@
 [submodule "libraries/Arduino-Libs"]
 	path = libraries/Arduino-Libs
 	url = git@github.com:goulou/Arduino-Libs.git
+[submodule "libraries/Adafruit-BMP085"]
+	path = libraries/Adafruit-BMP085
+	url = git@github.com:goulou/Adafruit-BMP085-Library.git
