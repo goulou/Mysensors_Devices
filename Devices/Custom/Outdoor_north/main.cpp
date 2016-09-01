@@ -1,24 +1,34 @@
-// Example sketch showing how to send in OneWire temperature readings
-#include <MySensor.h>
-#include <Wire.h>
-#include <Adafruit_BMP085.h>
 
-#include <eeprom_reset.hpp>
-#include <1w_node.hpp>
-#include <si7021_node.hpp>
-#include <battery_monitored_node.hpp>
+#ifndef BAUD_RATE
+#define BAUD_RATE 9600
+#endif
+#define MY_BAUD_RATE BAUD_RATE
+
+// Enable debug prints to serial monitor
+#define MY_DEBUG
+
+// Enable and select radio type attached
+#define MY_RADIO_NRF24
+//#define MY_RADIO_RFM69
+
+#include <SPI.h>
+#include <MySensors.h>
+
+#define SKETCH_NAME xstr(PROGRAM_NAME)
+#define SKETCH_MAJOR_VER "2"
+#define SKETCH_MINOR_VER "0"
+
+#define DEBUG
 #include <serial.hpp>
 
-MySensor gw;
-unsigned long SLEEP_TIME = 60000; // Sleep time between reads (in milliseconds)
+#include <eeprom_reset.hpp>
+#include <battery_monitored_node.hpp>
+#include <si7021_node.hpp>
+unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds)
 
-#define BATTERY_SENSE_PIN  			A0
+#define BATTERY_SENSE_PIN  A0
 
-#define RAIN_SENSOR_DIGITAL_PIN 	A3
-#define RAIN_SENSOR_ANALOG_PIN 		A2
-#define RAIN_CHILD_ID				16
-MyMessage RainMsg(RAIN_CHILD_ID, V_RAIN);
-
+#include <Adafruit_BMP085.h>
 #define BARO_CHILD_ID				130
 Adafruit_BMP085 bmp = Adafruit_BMP085();      // Digital Pressure Sensor
 float lastPressure = -1;
@@ -38,18 +48,18 @@ MyMessage forecastMsg(BARO_CHILD_ID, V_FORECAST);
 boolean bmp_present = false;
 void setup()
 {
+
 	Serial.begin(BAUD_RATE);
-	int i = 0;
-	DEBUG_PRINT_ln("launched");
 	setup_serial();
+	Serial.println();
+	Serial.println("launched");
+	wdt_reset();
 
-	eeprom_reset_check(PD4);
+	eeprom_reset_check(4);
+	setup_si7021(5, false, true);
+	wdt_reset();
 
-	DEBUG_PRINT_ln("begin");
-	Serial.flush();
-	DEBUG_PRINT_ln("launched");
-
-
+	uint8_t i = 0;
 	/****************************
 	         init BMP180
 	 ****************************/
@@ -81,51 +91,33 @@ void setup()
 	       end init BMP180
 	 ****************************/
 
+}
 
-	DEBUG_PRINT_ln("Setup si7021");
-	setup_si7021(gw, 10, false);
+void presentation() {
+  // Send the sketch version information to the gateway and Controller
+  sendSketchInfo(SKETCH_NAME, SKETCH_MAJOR_VER "." SKETCH_MINOR_VER);
 
-	// Startup and initialize MySensors library. Set callback for incoming messages.
-	gw.begin(NULL, 68);
-
-	// Send the sketch version information to the gateway and Controller
-	DEBUG_PRINT_ln("sendSketchInfo");
-	gw.sendSketchInfo(xstr(PROGRAM_NAME), "1.0");
-
-	// Startup DHT
-	present_si7021(gw);
-
-	pinMode(RAIN_SENSOR_DIGITAL_PIN, INPUT);
-	gw.present(RAIN_CHILD_ID, S_RAIN);
+  // Register binary input sensor to sensor_node (they will be created as child devices)
+  // You can use S_DOOR, S_MOTION or S_LIGHT here depending on your usage.
+  // If S_LIGHT is used, remember to update variable type you send in. See "msg" above.
+	battery_monitored_node_setup(BATTERY_SENSE_PIN);
+	present_si7021();
 
 	/****************************
-           present BMP180
+		   present BMP180
 	 ****************************/
 	if(bmp_present)
 	{
-		gw.present(BARO_CHILD_ID, S_BARO);
+		present(BARO_CHILD_ID, S_BARO);
 	}
-
-	battery_monitored_node_setup(gw, BATTERY_SENSE_PIN);
 }
+
+
 
 int lastRainValue = -1;
 
 void loop()
 {
-	// Process incoming messages (like config from server)
-	gw.process();
-	loop_si7021(gw);
-
-	int rainValue = digitalRead(RAIN_SENSOR_DIGITAL_PIN); // 1 = Not triggered, 0 = In soil with water
-	if (rainValue != lastRainValue)
-	{
-		DEBUG_PRINT("Rain status : ");
-		DEBUG_PRINT_ln(rainValue);
-		gw.send(RainMsg.set(rainValue == 0 ? 1 : 0)); // Send the inverse to gw as tripped should be when no water in soil
-		lastRainValue = rainValue;
-	}
-
 	if(bmp_present)
 	{
 
@@ -143,13 +135,13 @@ void loop()
 
 		if (abs(pressure - lastPressure) > 0.5)
 		{
-			gw.send(pressureMsg.set(pressure, 0));
+			send(pressureMsg.set(pressure, 0));
 			lastPressure = pressure;
 		}
 
 		if (forecast != lastForecast)
 		{
-			gw.send(forecastMsg.set(weather[forecast]));
+			send(forecastMsg.set(weather[forecast]));
 			lastForecast = forecast;
 		}
 
@@ -165,15 +157,14 @@ void loop()
 		 */
 	}
 
-	battery_monitored_node_loop(gw);
+	// Process incoming messages (like config from server)
+	loop_si7021();
+	battery_monitored_node_loop();
 
-	wdt_reset();
 	wdt_disable();
-	gw.sleep(SLEEP_TIME);
-	wdt_reset();
+	sleep(SLEEP_TIME);
 	wdt_enable(WDTO_8S);
 	wdt_reset();
-
 }
 
 float get_pressure_sample(int idx)
