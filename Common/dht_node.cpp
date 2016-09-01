@@ -18,11 +18,10 @@
 #define CHILD_ID_TEMP 129
 
 static dht dht_device;
-static float lastTemp;
-static float lastHum;
-static boolean metric = true;
+static float dht_lastTemp;
+static float dht_lastHum;
 static boolean DHT_registered = false;
-static int failed_count = 0;
+static int dht_failed_count = 0;
 static uint8_t dht_pin;
 
 void setup_dht_device(uint8_t pin, int max_try, boolean present)
@@ -35,8 +34,8 @@ void setup_dht_device(uint8_t pin, int max_try, boolean present)
 //	sensors.begin();
 	int8_t ret = dht_device.read22(pin);
 	// Register all sensors to gw (they will be created as child devices)
-	failed_count = 0;
-	while((isnan(dht_device.temperature)  || ret != DHTLIB_OK) && (max_try==0 || failed_count < max_try) )
+	dht_failed_count = 0;
+	while((isnan(dht_device.temperature)  || ret != DHTLIB_OK) && (max_try==0 || dht_failed_count < max_try) )
 	{
 		wdt_reset();
 		DEBUG_PRINT(F("Temperature is NaN, dht_code="));
@@ -48,7 +47,7 @@ void setup_dht_device(uint8_t pin, int max_try, boolean present)
 		delay(1000);
 		DEBUG_PRINT_ln(F("reading"));
 		ret = dht_device.read22(dht_pin);
-		failed_count ++;
+		dht_failed_count ++;
 	}
 
 	DEBUG_PRINT(F("temperature OK : "));
@@ -72,7 +71,7 @@ void present_dht_device()
 		present(CHILD_ID_HUM, S_HUM);
 		present(CHILD_ID_TEMP, S_TEMP);
 		DHT_registered = true;
-		failed_count = 0;
+		dht_failed_count = 0;
 	}
 	else
 	{
@@ -91,10 +90,10 @@ boolean loop_dht_device()
 
 		if(isnan(temperature) || isnan(humidity) || ret != DHTLIB_OK)
 		{
-			failed_count++;
+			dht_failed_count++;
 			DEBUG_PRINT_ln(F("unable to read"));
 			DEBUG_PRINT(ret);
-			if(failed_count >=20)
+			if(dht_failed_count >=20)
 			{
 				while(true)
 				{
@@ -109,17 +108,17 @@ boolean loop_dht_device()
 		}
 		else
 		{
-			failed_count = 0;
+			dht_failed_count = 0;
 
-			if (abs(temperature - lastTemp) > 0.2 || abs(temperature - lastTemp) > 0.2)
+			if (abs(temperature - dht_lastTemp) > 0.2 || abs(temperature - dht_lastTemp) > 0.2)
 			{
-				lastTemp = temperature;
+				dht_lastTemp = temperature;
 				MyMessage msg1(CHILD_ID_TEMP, V_TEMP);
 				send(msg1.set(temperature, 1));
 				Serial.print(F("T: "));
 				DEBUG_PRINT_ln(temperature);
 
-				lastHum = humidity;
+				dht_lastHum = humidity;
 				MyMessage msg2(CHILD_ID_HUM, V_HUM);
 				send(msg2.set(humidity, 1));
 				Serial.print(F("H: "));
@@ -138,5 +137,5 @@ boolean loop_dht_device()
 
 float dht_device_get_last_temp()
 {
-	return lastTemp;
+	return dht_lastTemp;
 }
