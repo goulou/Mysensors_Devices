@@ -164,19 +164,16 @@ boolean loop_digital_inputs()
 			Serial.println(value);
 			if(safe_send)
 			{
-				wait(500);
+				wait(100);
 				Serial.print("e");
 				MyMessage msg(sensor, V_TRIPPED);
 				send(msg.set(value));
-				if(safe_send)
-				{
-					wait(200);
-					Serial.print("f");
-					send(msg.set(value));
-					wait(200);
-					Serial.print("g");
-					send(msg.set(value));
-				}
+				wait(200);
+				Serial.print("f");
+				send(msg.set(value));
+				wait(200);
+				Serial.print("g");
+				send(msg.set(value));
 			}
 			else
 			{
