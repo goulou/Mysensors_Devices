@@ -107,7 +107,7 @@ boolean loop_si7021(bool force_send)
 			temperature = si7021_sensor.getFahrenheitHundredths()/100.0;
 		}
 		float humidity = si7021_sensor.getHumidityPercent();
-		humidity = max(0, min(humidity, 100.0))s;
+		humidity = max(0, min(humidity, 100.0));
 		if(isnan(temperature) || isnan(humidity))
 		{
 			failed_count++;
