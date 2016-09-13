@@ -92,7 +92,7 @@ void present_si7021()
 	wdt_reset();
 }
 
-boolean loop_si7021()
+boolean loop_si7021(bool force_send)
 {
 	wdt_reset();
 	if (registered)
@@ -130,7 +130,7 @@ boolean loop_si7021()
 		{
 			failed_count = 0;
 
-			if (abs(temperature - lastTemp) > MIN_TEMP_DELTA || abs(humidity - lastHum) > MIN_HUMIDITY_DELTA )
+			if (force_send || abs(temperature - lastTemp) > MIN_TEMP_DELTA || abs(humidity - lastHum) > MIN_HUMIDITY_DELTA )
 			{
 				lastTemp = temperature;
 				lastHum = humidity;
@@ -145,7 +145,7 @@ boolean loop_si7021()
 			}
 			else if(print_debug)
 			{
-				DEBUG_PRINT_ln(F("temp&hum did not change"));
+				DEBUG_PRINT_ln(F("temp&hum not sent"));
 			}
 		}
 	}

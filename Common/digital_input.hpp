@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-void setup_digital_input(const uint8_t* pins, const uint8_t* ids, uint8_t count, boolean present, boolean safe_send=false, const mysensor_sensor* types=NULL, boolean pullupmode=false);
+void setup_digital_input();
 
 void present_digital_inputs();
 

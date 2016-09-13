@@ -12,7 +12,7 @@
 
 void setup_si7021(int max_try, boolean present=true, boolean debug=true);
 void present_si7021();
-boolean loop_si7021();
+boolean loop_si7021(bool force_send=false);
 float si7021_get_last_temp();
 
 #include "si7021_node.cpp"

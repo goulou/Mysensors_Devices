@@ -34,18 +34,9 @@
 #include <digital_output.hpp>
 
 
-/**
- * My Sensors
- */
-const uint8_t output_pins[OUTPUT_PINS_COUNT] PROGMEM = {OUTPUT_PINS_DEFAULT};
-const uint8_t output_ids [OUTPUT_PINS_COUNT] PROGMEM = {16, 17, 18, 19};
-
-const uint8_t input_pins[INPUT_PINS_COUNT] PROGMEM = {INPUT_PINS_DEFAULT};
-const uint8_t input_ids [INPUT_PINS_COUNT] PROGMEM = {64, 65, 66, 67};
-const mysensor_sensor input_types [INPUT_PINS_COUNT] PROGMEM = {INPUT_PINS_TYPES};
-#define RELAY_ON 0  // GPIO value to write to turn on attached relay
-#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
-
+/****************************************
+ *      DIGITAL INPUTS AND OUTPUTS      *
+ ***************************************/
 unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds)
 
 void setup()
@@ -59,8 +50,9 @@ void setup()
 
 	eeprom_reset_check(EEPROM_RESET_PIN);
 	setup_si7021(5, false, true);
-	setup_digital_output(output_pins, output_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, false, input_types);
+	setup_digital_output();
+	setup_digital_input();
+
 	wdt_reset();
 
 	wdt_enable(WDTO_8S);

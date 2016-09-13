@@ -13,7 +13,9 @@
 	#ifdef __AVR_ATmega328P__
 		#define BOARD_V1
 	#elif defined(__AVR_ATmega2560__)
-		#define BOARD_MEGA
+		#ifndef BOARD_MEGA
+			#define BOARD_MEGA
+		#endif
 	#endif
 #endif
 
@@ -76,6 +78,15 @@
 #elif defined(BOARD_MEGA)
 
 #define EEPROM_RESET_PIN	13
+
+#define INPUT_PINS_DEFAULT 38, 40, 42, 44, 39, 41, 43, 45, 46, 48, 47, 49
+#define INPUT_PINS_COUNT 12
+#define INPUT_PINS_IDS 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75
+#define INPUT_PINS_TYPES S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY, S_BINARY
+
+#define OUTPUT_PINS_DEFAULT 22, 24, 26, 28, 23, 25, 27, 29, 30, 31, 32, 33, 34, 35, 36, 37
+#define OUTPUT_PINS_COUNT 16
+#define OUTPUT_PINS_IDS 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39
 
 #endif
 

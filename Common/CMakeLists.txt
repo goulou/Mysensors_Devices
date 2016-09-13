@@ -21,6 +21,7 @@ target_link_libraries(${PROJECT_NAME} Arduino_SI7021_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} Arduino_EEPROM_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} Arduino_DHT_${DEVICE_NAME})
 target_link_libraries(${PROJECT_NAME} MySensors_${DEVICE_NAME})
+target_link_libraries(${PROJECT_NAME} Arduino_BMP085_${DEVICE_NAME})
 
 #target_link_libraries(${PROJECT_NAME} MySensors_DHT_${DEVICE_NAME})
 #target_link_libraries(${PROJECT_NAME} MySensors_DallasTemperature_${DEVICE_NAME})
