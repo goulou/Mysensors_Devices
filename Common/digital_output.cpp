@@ -165,12 +165,12 @@ boolean incoming_message_digital_output(const MyMessage &message)
 uint8_t change_digital_output(uint8_t index)
 {
 	DEBUG_PRINT_ln("Changing output state");
-	uint8_t sensor_id = relay_ids[index];
+	uint8_t sensor_id = pgm_read_byte(&relay_ids[index]);
 
 	uint8_t state = loadState(sensor_id);
 	state = state==0?1:0;
 
-	uint8_t pin = relay_pins[index];
+	uint8_t pin = pgm_read_byte(&relay_pins[index]);
 	// Change relay state
 	digitalWrite(pin, state);
 	// Store state in eeprom
@@ -188,15 +188,18 @@ uint8_t change_digital_output(uint8_t index)
 
 bool set_digital_output(uint8_t index, uint8_t value)
 {
-	uint8_t sensor_id = relay_ids[index];
+	uint8_t sensor_id = pgm_read_byte(&relay_ids[index]);
 
 	uint8_t current_state = loadState(sensor_id);
 	uint8_t state = get_state_for_value(index, value);
 	if(state == current_state)
 		return false;
-	DEBUG_PRINT_ln("Setting output state");
+	DEBUG_PRINT("Setting output state:");
+	DEBUG_PRINT(sensor_id);
+	DEBUG_PRINT(":");
+	DEBUG_PRINT_ln(state);
 
-	uint8_t pin = relay_pins[index];
+	uint8_t pin = pgm_read_byte(&relay_pins[index]);
 	// Change relay state
 	digitalWrite(pin, state);
 	// Store state in eeprom
