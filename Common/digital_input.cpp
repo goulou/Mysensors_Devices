@@ -185,7 +185,7 @@ uint8_t get_input_value(uint8_t index)
 #ifdef INVERT_IN
 		for(uint8_t i=0; i<INVERT_IN_COUNT; i++)
 		{
-			if(index==INVERT_IN_ARRAY[state])
+			if(index==INVERT_IN_ARRAY[i])
 			{
 				value = value?0:1;
 			}
@@ -245,7 +245,10 @@ boolean loop_digital_inputs()
 //	{
 //		last_read = millis();
 //	}
-	if(INPUT_SAFESEND) sleep(5);
+#ifdef INPUT_SAFESEND
+	sleep(5);
+#endif
+
 #endif
 	//wait that the buttons are settled
 	for(int i=0; i<INPUT_PINS_COUNT; i++)
