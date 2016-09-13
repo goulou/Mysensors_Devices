@@ -28,5 +28,5 @@ add_subdirectory(Generics/SingleITSensor LivingRoomDoor1_0x06)
 add_subdirectory(Generics/DualITSensor GardenWater_0x1D_BOARDV2)
 add_subdirectory(Generics/OneWireTemperatureSensor Kitchen1_0xA2) #also takes 0xA3
 #
-add_mysensors_node(Generics/GenericIONode AtticSouth NODEID 0x45 BOARDMEGA ONSET_IN 0 1 2 3 ONSET_OUT 0 1 2 3 PULLUPS 0 1 2 3 INVERT_OUT 0 1 2 3)
+add_mysensors_node(Generics/GenericIONode AtticSouth NODEID 0x45 BOARDMEGA INPUT_DEBOUNCE ONSET_IN 0 1 2 3 ONSET_OUT 0 1 2 3 PULLUPS 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 INVERT_IN 0 1 2 3)
 add_mysensors_node(Generics/GenericTempNode OutdoorNorth NODEID 0x44 BOARDV1 BMP)
