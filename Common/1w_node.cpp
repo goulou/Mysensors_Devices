@@ -61,14 +61,11 @@ void present_onewire()
 	wdt_reset();
 	// Present all sensors to controller
 	int i = 0;
-	uint8_t nodeId_orig = _nc.nodeId;
 	for (i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
 	{
-		_nc.nodeId = nodeId_orig + 1;
 		present(i, S_TEMP);
 		wdt_reset();
 	}
-	_nc.nodeId = nodeId_orig;
 }
 
 void loop_onewire()
@@ -76,8 +73,6 @@ void loop_onewire()
 	wdt_reset();
 	// Fetch temperatures from Dallas sensors
 	sensors.requestTemperatures();
-
-	uint8_t nodeId_orig = _nc.nodeId;
 
 	// Read temperatures and send them to controller
 	for (int i = 0; i < numDallasSensors && i < MAX_ATTACHED_DS18B20; i++)
@@ -93,12 +88,9 @@ void loop_onewire()
 			Serial.print("sending temperature for device ");
 			Serial.println(i);
 			// Send in the new temperature
-			_nc.nodeId = nodeId_orig + 1;
 			send(RainMsg.setSensor(i).set(temperature, 1));
 			lastTemperature[i] = temperature;
 		}
-		_nc.nodeId = nodeId_orig;
 	}
 
-	_nc.nodeId = nodeId_orig;
 }
