@@ -78,9 +78,9 @@ void present_si7021()
 	if (si7021_sensor.sensorExists() == true)
 	{
 		DEBUG_PRINT_ln(F("SI7021 OK : presenting"));
-		present(CHILD_ID_HUM, S_HUM);
-		wdt_reset();
 		present(CHILD_ID_TEMP, S_TEMP);
+		wdt_reset();
+		present(CHILD_ID_HUM, S_HUM);
 		registered = true;
 		failed_count = 0;
 	}
