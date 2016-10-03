@@ -40,8 +40,15 @@
  * My Sensors
  */
 // Sleep time between reads (in milliseconds)
-#ifndef SLEEP_TIME
-#define SLEEP_TIME ((unsigned long)(60000*5))
+#ifdef ENABLE_BMP_SENSOR
+	#ifdef SLEEP_TIME
+		#undef SLEEP_TIME
+	#endif
+	#define SLEEP_TIME ((unsigned long)(60000*4))
+#else
+	#ifndef SLEEP_TIME
+		#define SLEEP_TIME ((unsigned long)(60000*5))
+	#endif
 #endif
 
 void setup()
@@ -93,7 +100,7 @@ void loop()
 	bool force_send = (no_send_count==0);
 
 #ifdef ENABLE_BMP_SENSOR
-	loop_bmp(force_send);
+	loop_bmp(force_send, SLEEP_TIME/60000);
 #endif
 	loop_si7021(force_send);
 	battery_monitored_node_loop();

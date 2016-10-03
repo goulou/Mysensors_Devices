@@ -13,7 +13,7 @@ int minuteCount = 0;
 bool firstRound = true;
 float pressureAvg[7];
 float dP_dt;
-int compute_forecast(float pressure);
+int compute_forecast(float pressure, uint8_t minute_count);
 MyMessage pressureMsg(BARO_CHILD_ID, V_PRESSURE);
 MyMessage forecastMsg(BARO_CHILD_ID, V_FORECAST);
 
@@ -42,7 +42,7 @@ void setup_bmp()
 	if(bmp_present)
 	{
 		float pressure = bmp.readSealevelPressure(81) / 100; // 205 meters above sealevel
-		int forecast = compute_forecast(pressure);
+		int forecast = compute_forecast(pressure, 0);
 
 		DEBUG_PRINT("Pressure = ");
 		DEBUG_PRINT(pressure);
@@ -69,7 +69,7 @@ void present_bmp() {
 
 int lastRainValue = -1;
 
-boolean loop_bmp(bool force_send)
+boolean loop_bmp(bool force_send, uint8_t minute_count)
 {
 	bool ret = false;
 	wdt_reset();
@@ -81,7 +81,7 @@ boolean loop_bmp(bool force_send)
 		/**************************************************/
 
 		float pressure = bmp.readSealevelPressure(81) / 100; // 81 meters above sealevel
-		int forecast = compute_forecast(pressure);
+		int forecast = compute_forecast(pressure, minute_count);
 
 		DEBUG_PRINT("Pressure = ");
 		DEBUG_PRINT(pressure);
@@ -124,7 +124,7 @@ float get_pressure_sample(int idx)
 	return pressureSamples[idx/4];
 }
 
-int compute_forecast(float pressure)
+int compute_forecast(float pressure, uint8_t minute_count)
 {
 	// Algorithm found here
 	// http://www.freescale.com/files/sensors/doc/app_note/AN3914.pdf
@@ -132,7 +132,7 @@ int compute_forecast(float pressure)
 		minuteCount = 5;
 
 	pressureSamples[minuteCount/4] = pressure;
-	minuteCount++;
+	minuteCount += minute_count;
 
 	if (minuteCount == 5)
 	{
