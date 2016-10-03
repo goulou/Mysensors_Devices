@@ -17,6 +17,7 @@ void setup_digital_input();
 void present_digital_inputs();
 
 boolean loop_digital_inputs();
+uint8_t get_digital_input_pin_for_id(uint8_t id);
 
 #include "digital_input.cpp"
 #endif /* SOURCE_DIRECTORY__COMMON_DIGITAL_INPUT_HPP_ */
