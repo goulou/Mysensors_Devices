@@ -35,14 +35,14 @@ void eeprom_reset_check(uint8_t reset_pin)
 			}
 			if(ok)
 			{
-				DEBUG_PRINT_ln(F("RESET PIN HIGH : clearing EEPROM"));
 				clear_eeprom();
+				Serial.println(F("RESET PIN HIGH : clearing EEPROM"));
 			}
 			break;
 		}
 	}
 
-	DEBUG_PRINT_ln(F("Not clearing EEPROM"));
+	Serial.println(F("Not clearing EEPROM"));
 }
 
 void clear_eeprom()
