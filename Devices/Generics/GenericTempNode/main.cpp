@@ -84,8 +84,6 @@ void presentation()
 	// If S_LIGHT is used, remember to update variable type you send in. See "msg" above.
 	battery_monitored_node_setup(BATTERY_SENSE_PIN);
 	present_si7021();
-	present_digital_inputs();
-	present_digital_output();
 #ifdef ENABLE_BMP_SENSOR
 	present_bmp();
 #endif

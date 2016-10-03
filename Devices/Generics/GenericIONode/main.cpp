@@ -80,6 +80,37 @@ unsigned long last_sensor_updates;
 void loop()
 {
 	wdt_reset();
+#ifdef INPUT_INTERRUPT
+	battery_monitored_node_loop();
+	loop_si7021();
+
+	wdt_reset();
+	Serial.println("Sl");
+	wdt_disable();
+	while(sleep(
+			digitalPinToInterrupt(get_digital_input_pin_for_id(0)),
+			digitalRead(get_digital_input_pin_for_id(0))==LOW?RISING:FALLING,
+			digitalPinToInterrupt(get_digital_input_pin_for_id(1)),
+			digitalRead(get_digital_input_pin_for_id(1))==LOW?RISING:FALLING,
+					SLEEP_TIME) == true)
+	{
+		wdt_reset();
+		wdt_enable(WDTO_8S);
+		wdt_reset();
+//		Serial.begin(BAUD_RATE);
+		Serial.println("IT");
+		while(loop_digital_inputs())
+		{
+			Serial.print("r");
+		}
+		Serial.println("Sl");
+		wdt_reset();
+		wdt_disable();
+	}
+	loop_digital_inputs();
+	Serial.println("Up");
+	wdt_reset();
+#elif defined(MY_REPEATER_FEATURE)
 	// Process incoming messages (like config from server)
 	loop_digital_output();
 	loop_digital_inputs();
@@ -92,6 +123,19 @@ void loop()
 	}
 
 	loop_serial();
+#else
+	no_send_count = (no_send_count+1) % 6;
+	bool force_send = (no_send_count==0);
+
+	loop_si7021(force_send);
+	battery_monitored_node_loop();
+
+	wdt_reset();
+	wdt_disable();
+	sleep(SLEEP_TIME);
+	wdt_enable(WDTO_8S);
+	wdt_reset();
+#endif
 }
 
 

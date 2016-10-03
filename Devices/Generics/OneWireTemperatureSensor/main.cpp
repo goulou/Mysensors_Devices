@@ -43,20 +43,6 @@ unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds
 #define BATTERY_SENSE_PIN  A0
 
 
-/**
- * My Sensors
- */
-#define NUMBER_OF_RELAYS OUTPUT_PINS_COUNT // Total number of attached relays
-const uint8_t output_pins[NUMBER_OF_RELAYS] PROGMEM = {OUTPUT_PINS_DEFAULT};
-const uint8_t output_ids [NUMBER_OF_RELAYS] PROGMEM = {OUTPUT_PINS_IDS};
-
-#define NUMBER_OF_DIGITAL_SENSORS INPUT_PINS_COUNT // Total number of attached motion sensors
-const uint8_t input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_DEFAULT};
-const uint8_t input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_IDS};
-const mysensor_sensor input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {INPUT_PINS_TYPES};
-#define RELAY_ON 0  // GPIO value to write to turn on attached relay
-#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
-
 
 void setup()
 {
@@ -73,8 +59,8 @@ void setup()
 #endif
 	setup_si7021(5, false, true);
 	wdt_reset();
-	setup_digital_output(output_pins, output_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_digital_input(input_pins, input_ids, NUMBER_OF_DIGITAL_SENSORS, false, false, input_types);
+	setup_digital_output();
+	setup_digital_input();
 	wdt_reset();
 }
 

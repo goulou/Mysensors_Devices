@@ -54,33 +54,21 @@
 
 #include <SPI.h>
 #include <MySensors.h>
-
+#include <serial.hpp>
 
 #define SKETCH_NAME xstr(PROGRAM_NAME)
 #define SKETCH_MAJOR_VER "2"
 #define SKETCH_MINOR_VER "0"
 
-
-#define NUMBER_OF_RELAYS 4 // Total number of attached relays
-const uint8_t output_relay_pins[NUMBER_OF_RELAYS] PROGMEM = {A1, 8, 6, 3};
-const uint8_t output_relay_ids [NUMBER_OF_RELAYS] PROGMEM = {16, 17, 18, 19};
-#define RELAY_ON 1  // GPIO value to write to turn on attached relay
-#define RELAY_OFF 0 // GPIO value to write to turn off attached relay
-
-#define NUMBER_OF_DIGITAL_SENSORS 4 // Total number of attached motion sensors
-const uint8_t gw_input_pins[NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {7, 5, A3, A2};
-const uint8_t gw_input_ids [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {64, 65, 66, 67};
-const mysensor_sensor gw_input_types [NUMBER_OF_DIGITAL_SENSORS] PROGMEM = {S_DOOR, S_MOTION, S_MOTION, S_MOTION};
-
-#include <digital_input.hpp>
-#include <digital_output.hpp>
-#include <si7021_node.hpp>
+//#include <digital_input.hpp>
+//#include <digital_output.hpp>
+//#include <si7021_node.hpp>
 
 void before()
 {
-	setup_digital_output(output_relay_pins, output_relay_ids, NUMBER_OF_RELAYS, RELAY_ON, RELAY_OFF, false);
-	setup_digital_input(gw_input_pins, gw_input_ids, NUMBER_OF_DIGITAL_SENSORS, false, true, gw_input_types);
-	setup_si7021(3, false, false);
+//	setup_digital_output();
+//	setup_digital_input();
+//	setup_si7021(3, false, false);
 }
 
 void setup() {
@@ -92,23 +80,23 @@ void presentation()
 	 // Present locally attached sensors
   // Send the sketch version information to the gateway and Controller
 	sendSketchInfo(SKETCH_NAME, SKETCH_MAJOR_VER "." SKETCH_MINOR_VER);
-	present_digital_output();
-	present_digital_inputs();
-	present_si7021();
+//	present_digital_output();
+//	present_digital_inputs();
+//	present_si7021();
 }
 
 
 void loop()
 {
-	loop_digital_inputs();
-	loop_digital_output();
-	loop_si7021();
+//	loop_digital_inputs();
+//	loop_digital_output();
+//	loop_si7021();
 	  // Send locally attached sensor data here
 }
 
 void receive(const MyMessage &message)
 {
 	// We only expect one type of message from controller. But we better check anyway.
-	incoming_message_digital_output(message);
+//	incoming_message_digital_output(message);
 }
 
