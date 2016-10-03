@@ -35,8 +35,8 @@ void eeprom_reset_check(uint8_t reset_pin)
 			}
 			if(ok)
 			{
-				clear_eeprom();
 				Serial.println(F("RESET PIN HIGH : clearing EEPROM"));
+//				clear_eeprom();
 			}
 			break;
 		}
