@@ -1,7 +1,6 @@
 #add_subdirectory(Kitchen1/)
 add_subdirectory(Generics/TempHumSensor Room1_0x14)
 #add_subdirectory(Generics/TempHumSensor Room2_0x1C)
-add_subdirectory(Generics/TempHumSensor RoomUp2_0x48)
 #add_subdirectory(Generics/TempHumSensor LivingRoom_0x04)
 add_subdirectory(Generics/TempHumSensor BathRoom_0x19)
 add_subdirectory(Generics/TempHumSensor Attic_0x47)
@@ -25,11 +24,12 @@ add_subdirectory(Generics/DigitalIONode AtticNorth_0x02)
 #add_subdirectory(AtticNorth/)
 #add_subdirectory(Generics/SingleITSensor LivingRoomDoor1_0x06)
 #add_subdirectory(Generics/DualITSensor GardenWater_0x1D_BOARDV2)
-add_subdirectory(Generics/OneWireTemperatureSensor Kitchen1_0xA2) #also takes 0xA3
+add_mysensors_node(Generics/OneWireTemperatureSensor Kitchen1 NODEID 0xA2 BOARDV1) #also takes 0xA3
 #
 add_mysensors_node(Generics/GenericIONode AtticSouth NODEID 0x45 BOARDMEGA INPUT_DEBOUNCE ONSET_IN 0 1 2 3 ONSET_OUT 0 1 2 3 PULLUPS 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 INVERT_IN 0 1 2 3 PA_LEVEL_LOW)
 add_mysensors_node(Generics/GenericIONode HeatingControl NODEID 0x13 BOARDMEGA INPUT_DEBOUNCE PULLUPS 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 PA_LEVEL_HIGH)
 add_mysensors_node(Generics/GenericTempNode OutdoorNorth NODEID 0x44 BOARDV1 BMP)
+add_mysensors_node(Generics/GenericTempNode RoomUp1 NODEID 0x48 BOARDV1 PA_LEVEL_LOW)
 add_mysensors_node(Generics/GenericTempNode LivingRoom NODEID 0x04 BOARDV2)
 add_mysensors_node(Generics/GenericTempNode Room2 NODEID 0x1C BOARDV2)
 add_mysensors_node(Generics/GenericIONode LivingRoomDoor1 NODEID 0x06 BOARDV1 INPUT_INTERRUPT PULLUPS 0 1 2 3)
