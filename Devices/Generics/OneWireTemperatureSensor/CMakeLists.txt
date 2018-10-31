@@ -7,7 +7,7 @@ setup_mysensor_project(${CMAKE_CURRENT_BINARY_DIR})
 #Set this variable to "avr" or "sam"
 set(MCU "atmega328p")
 set(MCU_MACRO "__AVR_ATmega328P__")
-set(CPU_SPEED "8000000")
+set(CPU_SPEED "1000000")
 
 set(PROGRAM_DEFS "-DONE_WIRE_BUS=5")
 
