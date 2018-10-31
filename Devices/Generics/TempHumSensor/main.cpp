@@ -30,7 +30,7 @@ unsigned long SLEEP_TIME = 60000*5; // Sleep time between reads (in milliseconds
 
 
 
-void setup()
+void before()
 {
 	Serial.begin(BAUD_RATE);
 	setup_serial();

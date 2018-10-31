@@ -51,7 +51,7 @@
 	#endif
 #endif
 
-void setup()
+void before()
 {
 
 	Serial.begin(BAUD_RATE);
