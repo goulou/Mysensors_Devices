@@ -55,7 +55,7 @@ void before()
 	eeprom_reset_check(EEPROM_RESET_PIN);
 	setup_onewire();
 #ifdef DHT_PIN
-	setup_dht_device(PD7, 5, false);
+	setup_dht_device(DHT_PIN, 5, false);
 #endif
 	setup_si7021(5, false, true);
 	wdt_reset();
