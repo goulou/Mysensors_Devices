@@ -80,7 +80,7 @@ void loop_onewire()
 
 		// Fetch and round temperature to one decimal
 		float temperature = static_cast<float>(static_cast<int>((
-				getConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
+				getControllerConfig().isMetric ? sensors.getTempCByIndex(i) : sensors.getTempFByIndex(i)) * 10.)) / 10.;
 
 		// Only send data if temperature has changed and no error
 		if (abs(lastTemperature[i] - temperature) > MIN_TEMPERATURE_DELTA && temperature != -127.00)
